@@ -23,19 +23,25 @@ public class BlockBean implements Parcelable {
 
   public int type;
   public int color;
+  public int subStack1;
+  public int subStack2;
   public String id;
-  public List<Param<?>> params;
+  public String spec;
+  public String opCode;
+  public ArrayList<String> parameters;
+  public ArrayList<String> parametersTypes;
 
   public BlockBean() {
-    params = new ArrayList<>();
+    parameters = new ArrayList<>();
+    parametersTypes = new ArrayList<>();
   }
 
   public BlockBean(final Parcel parcel) {
     type = parcel.readInt();
     color = parcel.readInt();
     id = parcel.readString();
-    params = new ArrayList<>();
-    parcel.readList(params, Param.class.getClassLoader());
+    parameters = (ArrayList) parcel.readSerializable();
+    parametersTypes = (ArrayList) parcel.readSerializable();
   }
 
   @Override
@@ -43,23 +49,12 @@ public class BlockBean implements Parcelable {
     parcel.writeInt(type);
     parcel.writeInt(color);
     parcel.writeString(id);
-    parcel.writeList(params);
+    parcel.writeSerializable(parameters);
+    parcel.writeSerializable(parametersTypes);
   }
 
   @Override
   public int describeContents() {
     return 0;
-  }
-
-  public static class Param<T> {
-    public String name;
-    public Class<T> typeClass;
-    public T defValue;
-
-    public Param(final String name, final Class<T> typeClass, final T value) {
-      this.name = name;
-      this.typeClass = typeClass;
-      this.defValue = defValue;
-    }
   }
 }
