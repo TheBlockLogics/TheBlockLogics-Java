@@ -1,4 +1,4 @@
-package com.besome.sketch.editor.logic.block;
+package dev.trindadedev.theblocklogicsjava.ui.editor.block;
 
 /** Decompiled from Sketchware 1.1.13 */
 import android.content.Context;
@@ -6,8 +6,8 @@ import android.graphics.Point;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.RelativeLayout;
-import com.besome.sketch.define.BlockBean;
-import com.besome.sketch.lib.utils.LayoutUtil;
+import dev.trindadedev.theblocklogicsjava.beans.BlockBean;
+import dev.trindadedev.theblocklogicsjava.utils.LayoutUtil;
 import java.util.ArrayList;
 import java.util.Iterator;
 
