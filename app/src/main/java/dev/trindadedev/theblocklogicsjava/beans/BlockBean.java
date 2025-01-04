@@ -3,7 +3,6 @@ package dev.trindadedev.theblocklogicsjava.beans;
 import android.os.Parcel;
 import android.os.Parcelable;
 import java.util.ArrayList;
-import java.util.List;
 
 @SuppressWarnings("DEPRECATION")
 public class BlockBean implements Parcelable {

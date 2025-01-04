@@ -1,9 +1,6 @@
 package dev.trindadedev.theblocklogicsjava.ui.editor.block;
 
-/**
- * Decompiled from Sketchware 1.1.13
- */
-
+/** Decompiled from Sketchware 1.1.13 */
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -11,11 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.besome.sketch.lib.ui.CustomHorizontalScrollView;
-import com.besome.sketch.lib.ui.CustomScrollView;
-import dev.trindadedev.theblocklogicsjava.utils.LayoutUtil;
-import dev.trindadedev.theblocklogicsjava.databinding.PaletteBlockBinding;
 import com.google.android.material.card.MaterialCardView;
+import dev.trindadedev.theblocklogicsjava.databinding.PaletteBlockBinding;
+import dev.trindadedev.theblocklogicsjava.utils.LayoutUtil;
 
 public class PaletteBlock extends LinearLayout {
 

@@ -1,8 +1,7 @@
 package dev.trindadedev.theblocklogicsjava.ui.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import dev.trindadedev.theblocklogicsjava.data.Blocks;
+import androidx.appcompat.app.AppCompatActivity;
 import dev.trindadedev.theblocklogicsjava.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
