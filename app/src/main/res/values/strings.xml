@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="app_name">TheBlockLogicsJava</string>
+  <string name="block_category_component_func">Component</string>
+  <string name="block_category_control">Control</string>
+  <string name="block_category_file">File</string>
+  <string name="block_category_list">List</string>
+  <string name="block_category_math">Math</string>
+  <string name="block_category_moreblock">More Block</string>
+  <string name="block_category_operator">Operator</string>
+  <string name="block_category_var">Variable</string>
+  <string name="block_category_view_func">View</string>
 </resources>
