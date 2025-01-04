@@ -27,7 +27,6 @@ import com.besome.sketch.editor.logic.LogicEditorActivity;
 import com.besome.sketch.editor.view.ui.ColorPickerPopup;
 import com.besome.sketch.manager.ProjectFileManager;
 import com.besome.sketch.manager.ResourceManager;
-import com.bumptech.glide.DrawableTypeRequest;
 import com.bumptech.glide.Glide;
 import dev.trindadedev.theblocklogicsjava.utils.LayoutUtil;
 import java.io.File;
@@ -103,9 +102,9 @@ public class BlockArg extends BlockBase {
         if (z) {
             imageView.setImageResource(getContext().getResources().getIdentifier(str, "drawable", getContext().getPackageName()));
         } else {
-            DrawableTypeRequest load = Glide.with(getContext()).load(Build.VERSION.SDK_INT >= 24 ? FileProvider.getUriForFile(this.mContext, this.mContext.getApplicationContext().getPackageName() + ".provider", new File(DesignActivity.resourceManager.getImagePathFromName(str))) : Uri.fromFile(new File(DesignActivity.resourceManager.getImagePathFromName(str))));
-            ResourceManager resourceManager = DesignActivity.resourceManager;
-            load.signature(ResourceManager.getSignature()).error(2130837737).into(imageView);
+            // DrawableTypeRequest load = Glide.with(getContext()).load(Build.VERSION.SDK_INT >= 24 ? FileProvider.getUriForFile(this.mContext, this.mContext.getApplicationContext().getPackageName() + ".provider", new File(DesignActivity.resourceManager.getImagePathFromName(str))) : Uri.fromFile(new File(DesignActivity.resourceManager.getImagePathFromName(str))));
+            // ResourceManager resourceManager = DesignActivity.resourceManager;
+            // load.signature(ResourceManager.getSignature()).error(2130837737).into(imageView);
         }
         imageView.setBackgroundColor(-4342339);
         linearLayout.addView(imageView);
