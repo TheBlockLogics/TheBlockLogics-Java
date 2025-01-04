@@ -6,29 +6,29 @@ import android.view.MotionEvent;
 import android.widget.HorizontalScrollView;
 
 public class CustomHorizontalScrollView extends HorizontalScrollView {
-    protected boolean enabled = true;
+  protected boolean enabled = true;
 
-    public CustomHorizontalScrollView(Context context) {
-        super(context);
-    }
+  public CustomHorizontalScrollView(Context context) {
+    super(context);
+  }
 
-    public CustomHorizontalScrollView(Context context, AttributeSet attributeSet) {
-        super(context, attributeSet);
-    }
+  public CustomHorizontalScrollView(Context context, AttributeSet attributeSet) {
+    super(context, attributeSet);
+  }
 
-    public boolean onInterceptTouchEvent(MotionEvent motionEvent) {
-        return this.enabled ? super.onInterceptTouchEvent(motionEvent) : false;
-    }
+  public boolean onInterceptTouchEvent(MotionEvent motionEvent) {
+    return this.enabled ? super.onInterceptTouchEvent(motionEvent) : false;
+  }
 
-    public boolean onTouchEvent(MotionEvent motionEvent) {
-        return this.enabled ? super.onTouchEvent(motionEvent) : false;
-    }
+  public boolean onTouchEvent(MotionEvent motionEvent) {
+    return this.enabled ? super.onTouchEvent(motionEvent) : false;
+  }
 
-    public void setScrollDisabled() {
-        this.enabled = false;
-    }
+  public void setScrollDisabled() {
+    this.enabled = false;
+  }
 
-    public void setScrollEnabled() {
-        this.enabled = true;
-    }
+  public void setScrollEnabled() {
+    this.enabled = true;
+  }
 }
