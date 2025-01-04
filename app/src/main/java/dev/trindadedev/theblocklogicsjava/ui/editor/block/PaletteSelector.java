@@ -5,6 +5,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
+import dev.trindadedev.theblocklogicsjava.R;
 import dev.trindadedev.theblocklogicsjava.utils.LayoutUtil;
 
 public class PaletteSelector extends LinearLayout implements View.OnClickListener {

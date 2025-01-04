@@ -13,143 +13,168 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 public class StringUtil {
-  public static String getComma(int number) {
-    NumberFormat nf = NumberFormat.getInstance();
-    return nf.format(number);
-  }
-
-  public static String getComma(String number) {
-    return getComma(Integer.parseInt(number));
-  }
-
-  public static int removeComma(String number) {
-    NumberFormat nf = NumberFormat.getInstance();
-    try {
-      Number num = nf.parse(number);
-      int cvInt = num.intValue();
-      return cvInt;
-    } catch (ParseException e) {
-      e.printStackTrace();
-      return 0;
+    public static String clipCurrencyCode(String str) {
+        String str2 = "";
+        for (char c : str.toCharArray()) {
+            if (c >= '0' && c <= '9') {
+                return str2 + c;
+            }
+        }
+        return str2;
     }
-  }
 
-  public static int parseCurrency(String price) {
-    try {
-      Number nfPrice = NumberFormat.getCurrencyInstance(Locale.KOREA).parse(price);
-      return nfPrice.intValue();
-    } catch (ParseException e) {
-      return -1;
+    public static void copyToClipboard(Context context, String str, String str2) {
+        ((ClipboardManager) context.getSystemService("clipboard")).setPrimaryClip(ClipData.newPlainText(str, str2));
     }
-  }
 
-  public static String formatCurrency(int price) {
-    NumberFormat numFormat = NumberFormat.getCurrencyInstance(Locale.KOREA);
-    numFormat.setMinimumFractionDigits(0);
-    numFormat.setMaximumFractionDigits(0);
-    String nfPrice = numFormat.format(price);
-    return nfPrice;
-  }
-
-  public static String clipCurrencyCode(String price) {
-    char[] temp = price.toCharArray();
-    for (char c : temp) {
-      if (c >= '0' && c <= '9') {
-        String curCode = "" + c;
-        return curCode;
-      }
+    public static String encryptSha256(String str) {
+        try {
+            MessageDigest instance = MessageDigest.getInstance("SHA-256");
+            instance.update(str.getBytes());
+            byte[] digest = instance.digest();
+            StringBuffer stringBuffer = new StringBuffer();
+            for (byte b : digest) {
+                stringBuffer.append(Integer.toString((b & 255) + 256, 16).substring(1));
+            }
+            return stringBuffer.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
-    return "";
-  }
 
-  public String printStackTraceToString(Throwable e) {
-    StringBuffer sb = new StringBuffer();
-    sb.append(e.getMessage()).append(e.toString()).append("\n");
-    try {
-      StackTraceElement[] element = e.getStackTrace();
-      for (StackTraceElement stackTraceElement : element) {
-        sb.append("\tat ").append(stackTraceElement.toString()).append("\n");
-      }
-      return sb.toString();
-    } catch (Exception e2) {
-      return e.toString();
+    public static String escape(String str) {
+        return str.replaceAll("/[\\%@]/g", "\\$&");
     }
-  }
 
-  public static String escape(String s) {
-    return s.replaceAll("/[\\%@]/g", "\\$&");
-  }
-
-  public static String shortenNumber(int num) {
-    if (num >= 1000.0f && num < 1000000.0f) {
-      float value = num / 1000.0f;
-      DecimalFormat formatter = new DecimalFormat("#.#K");
-      String shorten = formatter.format(value);
-      return shorten;
-    } else if (num >= 1000000.0f && num < 1.0E9f) {
-      float value2 = num / 1000000.0f;
-      DecimalFormat formatter2 = new DecimalFormat("#.#M");
-      String shorten2 = formatter2.format(value2);
-      return shorten2;
-    } else if (num >= 1.0E9f && num < 1.0E12f) {
-      float value3 = num / 1.0E9f;
-      DecimalFormat formatter3 = new DecimalFormat("#.#G");
-      String shorten3 = formatter3.format(value3);
-      return shorten3;
-    } else {
-      String shorten4 = String.valueOf(num);
-      return shorten4;
+    public static String formatCurrency(int i) {
+        NumberFormat currencyInstance = NumberFormat.getCurrencyInstance(Locale.KOREA);
+        currencyInstance.setMinimumFractionDigits(0);
+        currencyInstance.setMaximumFractionDigits(0);
+        return currencyInstance.format((long) i);
     }
-  }
 
-  public static void copyToClipboard(Context context, String label, String text) {
-    ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService("clipboard");
-    ClipData data = ClipData.newPlainText(label, text);
-    clipboardManager.setPrimaryClip(data);
-  }
-
-  public static String encryptSha256(String str) {
-    try {
-      MessageDigest sh = MessageDigest.getInstance("SHA-256");
-      sh.update(str.getBytes());
-      byte[] byteData = sh.digest();
-      StringBuffer sb = new StringBuffer();
-      for (byte b : byteData) {
-        sb.append(Integer.toString((b & 255) + 256, 16).substring(1));
-      }
-      String result = sb.toString();
-      return result;
-    } catch (NoSuchAlgorithmException e) {
-      e.printStackTrace();
-      return null;
+    public static String getComma(int i) {
+        return NumberFormat.getInstance().format((long) i);
     }
-  }
 
-  public static String unescape(String s) {
-    String result = "";
-    int i = 0;
-    while (i < s.length()) {
-      char ch = s.charAt(i);
-      if (ch == '\\') {
-        result = result + s.charAt(i + 1);
-        i++;
-      } else {
-        result = result + ch;
-      }
-      i++;
+    public static String getComma(String str) {
+        return getComma(Integer.parseInt(str));
     }
-    return result;
-  }
 
-  public static ArrayList<String> tokenize(String s) {
-    ArrayList<String> result = new ArrayList<>();
-    TokenParser tp = new TokenParser(s);
-    while (!tp.atEnd()) {
-      String token = tp.nextToken();
-      if (token.length() > 0) {
-        result.add(token);
-      }
+    public static int parseCurrency(String str) {
+        try {
+            return NumberFormat.getCurrencyInstance(Locale.KOREA).parse(str).intValue();
+        } catch (ParseException e) {
+            return -1;
+        }
     }
-    return result;
-  }
+
+    public static int removeComma(String str) {
+        try {
+            return NumberFormat.getInstance().parse(str).intValue();
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    public static String shortenNumber(int i) {
+        if (((float) i) >= 1000.0f && ((float) i) < 1000000.0f) {
+            return new DecimalFormat("#.#K").format((double) (((float) i) / 1000.0f));
+        } else if (((float) i) >= 1000000.0f && ((float) i) < 1.0E9f) {
+            return new DecimalFormat("#.#M").format((double) (((float) i) / 1000000.0f));
+        } else if (((float) i) < 1.0E9f || ((float) i) >= 1.0E12f) {
+            return String.valueOf(i);
+        } else {
+            return new DecimalFormat("#.#G").format((double) (((float) i) / 1.0E9f));
+        }
+    }
+
+    public static ArrayList<String> tokenize(String str) {
+        ArrayList<String> arrayList = new ArrayList();
+        TokenParser tokenParser = new TokenParser(str);
+        while (!tokenParser.atEnd()) {
+            String nextToken = tokenParser.nextToken();
+            if (nextToken.length() > 0) {
+                arrayList.add(nextToken);
+            }
+        }
+        return arrayList;
+    }
+    
+    static class TokenParser {
+        private int i = 0;
+        private String src;
+
+        public TokenParser(String str) {
+            this.src = str;
+        }
+
+        public boolean atEnd() {
+            return this.i >= this.src.length();
+        }
+
+        public String next() {
+            if (this.i >= this.src.length()) {
+                return "";
+            }
+            String str = this.src;
+            int i = this.i;
+            this.i = i + 1;
+            return String.valueOf(str.charAt(i));
+        }
+
+        public String nextToken() {
+            skipWhiteSpace();
+            if (atEnd()) {
+                return "";
+            }
+            String str = "";
+            Object obj = null;
+            int i = this.i;
+            while (this.i < this.src.length() && this.src.charAt(this.i) != ' ') {
+                char charAt = this.src.charAt(this.i);
+                if (charAt == '\\') {
+                    str = str + (charAt + this.src.charAt(this.i + 1));
+                    this.i += 2;
+                } else {
+                    if (charAt == '%') {
+                        if (this.i > i) {
+                            return str;
+                        }
+                        obj = 1;
+                    }
+                    if (obj != null && (charAt == '?' || charAt == '-')) {
+                        return str;
+                    }
+                    str = str + charAt;
+                    this.i++;
+                }
+            }
+            return str;
+        }
+
+        public void skipWhiteSpace() {
+            while (this.i < this.src.length() && this.src.charAt(this.i) == ' ') {
+                this.i++;
+            }
+        }
+    }
+
+    public static String unescape(String str) {
+        String str2 = "";
+        int i = 0;
+        while (i < str.length()) {
+            char charAt = str.charAt(i);
+            if (charAt == '\\') {
+                str2 = str2 + str.charAt(i + 1);
+                i++;
+            } else {
+                str2 = str2 + charAt;
+            }
+            i++;
+        }
+        return str2;
+    }
 }
