@@ -20,10 +20,10 @@ public class BlockBean implements Parcelable {
         }
       };
 
-  public int type;
   public int color;
   public int subStack1;
   public int subStack2;
+  public String type;
   public String id;
   public String spec;
   public String opCode;
@@ -36,10 +36,10 @@ public class BlockBean implements Parcelable {
   }
 
   public BlockBean(final Parcel parcel) {
-    type = parcel.readInt();
     color = parcel.readInt();
     subStack1 = parcel.readInt();
     subStack2 = parcel.readInt();
+    type = parcel.readString();
     id = parcel.readString();
     spec = parcel.readString();
     opCode = parcel.readString();
@@ -49,10 +49,10 @@ public class BlockBean implements Parcelable {
 
   @Override
   public void writeToParcel(final Parcel parcel, final int arg1) {
-    parcel.writeInt(type);
     parcel.writeInt(color);
     parcel.writeInt(subStack1);
     parcel.writeInt(subStack2);
+    parcel.writeString(type);
     parcel.writeString(id);
     parcel.writeString(spec);
     parcel.writeString(opCode);
