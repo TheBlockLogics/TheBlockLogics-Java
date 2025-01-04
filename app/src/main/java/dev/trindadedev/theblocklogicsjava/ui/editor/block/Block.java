@@ -1,10 +1,8 @@
 package dev.trindadedev.theblocklogicsjava.ui.editor.block;
 
-// decompile from Sketchware 1.1.13
-
 import android.content.Context;
-import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -15,680 +13,622 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class Block extends BlockBase {
-  public static final int BLOCK_TYPE_HAT = 2;
-  public static final int BLOCK_TYPE_INPALETTE = 1;
-  public static final int BLOCK_TYPE_NORMAL = 0;
-  public ArrayList<String> argTypes;
-  public ArrayList<View> args;
-  private int blockType;
-  public int childDepth;
-  public Object[] defaultArgValues;
-  private int defaultSpace;
-  private TextView elseLabel;
-  public boolean forcedRequester;
-  public boolean isHat;
-  public boolean isReporter;
-  public boolean isRequester;
-  public boolean isTerminal;
-  public ArrayList<View> labelsAndArgs;
-  private RelativeLayout.LayoutParams lp;
-  private Object[] mDefaultArgs;
-  public String mOpCode;
-  public String mSpec;
-  private int minCommandWidth;
-  private int minHatWidth;
-  private int minLoopWidth;
-  private int minReporterWidth;
-  public int nextBlock;
-  public BlockPane pane;
-  public int subStack1;
-  public int subStack2;
+    public static final int BLOCK_TYPE_HAT = 2;
+    public static final int BLOCK_TYPE_INPALETTE = 1;
+    public static final int BLOCK_TYPE_NORMAL = 0;
+    public ArrayList<String> argTypes = new ArrayList<>();
+    public ArrayList<View> args;
+    private int blockType = 0;
+    public int childDepth = 0;
+    public Object[] defaultArgValues;
+    private int defaultSpace = 4;
+    private TextView elseLabel = null;
+    public boolean forcedRequester = false;
+    public boolean isHat = false;
+    public boolean isReporter = false;
+    public boolean isRequester = false;
+    public boolean isTerminal = false;
+    public ArrayList<View> labelsAndArgs = new ArrayList<>();
+    private RelativeLayout.LayoutParams lp;
+    private Object[] mDefaultArgs;
+    public String mOpCode;
+    public String mSpec;
+    private int minCommandWidth = 50;
+    private int minHatWidth = 90;
+    private int minLoopWidth = 90;
+    private int minReporterWidth = 30;
+    public int nextBlock = -1;
+    public BlockPane pane = null;
+    public int subStack1 = -1;
+    public int subStack2 = -1;
 
-  public Block(
-      Context context, int tag, String spec, String type, String opCode, Object... defaultArgs) {
-    super(context, type, false);
-    this.minReporterWidth = 30;
-    this.minCommandWidth = 50;
-    this.minHatWidth = 90;
-    this.minLoopWidth = 90;
-    this.defaultSpace = 4;
-    this.isHat = false;
-    this.isReporter = false;
-    this.isTerminal = false;
-    this.isRequester = false;
-    this.forcedRequester = false;
-    this.nextBlock = -1;
-    this.subStack1 = -1;
-    this.subStack2 = -1;
-    this.labelsAndArgs = new ArrayList<>();
-    this.argTypes = new ArrayList<>();
-    this.elseLabel = null;
-    this.childDepth = 0;
-    this.blockType = 0;
-    this.pane = null;
-    setTag(Integer.valueOf(tag));
-    this.mSpec = spec;
-    this.mOpCode = opCode;
-    this.mDefaultArgs = defaultArgs;
-    init(context);
-  }
+    public Block(Context context, int i, String str, String str2, String str3, Object... objArr) {
+        super(context, str2, false);
+        setTag(Integer.valueOf(i));
+        this.mSpec = str;
+        this.mOpCode = str3;
+        this.mDefaultArgs = objArr;
+        init(context);
+    }
 
-  private void init(Context context) {
-    setDrawingCacheEnabled(false);
-    setGravity(51);
-    this.minReporterWidth = (int) (this.minReporterWidth * this.dip);
-    this.minCommandWidth = (int) (this.minCommandWidth * this.dip);
-    this.minHatWidth = (int) (this.minHatWidth * this.dip);
-    this.minLoopWidth = (int) (this.minLoopWidth * this.dip);
-    this.defaultSpace = (int) (this.defaultSpace * this.dip);
-    String str = this.mType;
-    char c = 65535;
-    switch (str.hashCode()) {
-      case 32:
-        if (str.equals(" ")) {
-          c = 0;
-          break;
+    private void addLabelsAndArgs(String str, int i) {
+        ArrayList arrayList = StringUtil.tokenize(str);
+        this.labelsAndArgs = new ArrayList<>();
+        this.argTypes = new ArrayList<>();
+        int i2 = 0;
+        while (true) {
+            int i3 = i2;
+            if (i3 < arrayList.size()) {
+                View argOrLabelFor = argOrLabelFor((String) arrayList.get(i3), i);
+                if (argOrLabelFor instanceof BlockBase) {
+                    ((BlockBase) argOrLabelFor).parentBlock = this;
+                }
+                this.labelsAndArgs.add(argOrLabelFor);
+                String str2 = "icon";
+                if (argOrLabelFor instanceof BlockArg) {
+                    str2 = (String) arrayList.get(i3);
+                }
+                if (argOrLabelFor instanceof TextView) {
+                    str2 = "label";
+                }
+                this.argTypes.add(str2);
+                i2 = i3 + 1;
+            } else {
+                return;
+            }
         }
-        break;
-      case 98:
-        if (str.equals("b")) {
-          c = 1;
-          break;
+    }
+
+    private void appendBlock(Block block) {
+        if (!canHaveSubstack1() || -1 != this.subStack1) {
+            Block bottomBlock = bottomBlock();
+            bottomBlock.nextBlock = ((Integer) block.getTag()).intValue();
+            block.parentBlock = bottomBlock;
+            return;
         }
-        break;
-      case 99:
-        if (str.equals("c")) {
-          c = 4;
-          break;
+        insertBlockSub1(block);
+    }
+
+    private View argOrLabelFor(String str, int i) {
+        if (str.length() >= 2 && str.charAt(0) == '%') {
+            char charAt = str.charAt(1);
+            if (charAt == 'b') {
+                return new BlockArg(this.mContext, "b", i, "");
+            }
+            if (charAt == 'd') {
+                return new BlockArg(this.mContext, "d", i, "");
+            }
+            if (charAt == 'm') {
+                return new BlockArg(this.mContext, "m", i, str.substring(3));
+            }
+            if (charAt == 's') {
+                return new BlockArg(this.mContext, "s", i, str.length() > 2 ? str.substring(3) : "");
+            }
         }
-        break;
-      case 100:
-        if (str.equals("d")) {
-          c = 3;
-          break;
+        return makeLabel(StringUtil.unescape(str));
+    }
+
+    private void collectArgs() {
+        this.args = new ArrayList<>();
+        int i = 0;
+        while (true) {
+            int i2 = i;
+            if (i2 < this.labelsAndArgs.size()) {
+                View view = this.labelsAndArgs.get(i2);
+                if ((view instanceof Block) || (view instanceof BlockArg)) {
+                    this.args.add(view);
+                }
+                i = i2 + 1;
+            } else {
+                return;
+            }
         }
-        break;
-      case 101:
-        if (str.equals("e")) {
-          c = 6;
-          break;
+    }
+
+    private void fixElseLabel() {
+        if (this.elseLabel != null) {
+            this.elseLabel.bringToFront();
+            this.elseLabel.setX((float) this.indentLeft);
+            this.elseLabel.setY((float) (substack2y() - this.DividerH));
         }
-        break;
-      case 102:
-        if (str.equals("f")) {
-          c = 7;
-          break;
+    }
+
+    private int getLabelWidth(TextView textView) {
+        Rect rect = new Rect();
+        textView.getPaint().getTextBounds(textView.getText().toString(), 0, textView.getText().length(), rect);
+        return rect.width();
+    }
+
+    private void init(Context context) {
+        int identifier;
+        setDrawingCacheEnabled(false);
+        setGravity(51);
+        this.minReporterWidth = (int) (((float) this.minReporterWidth) * this.dip);
+        this.minCommandWidth = (int) (((float) this.minCommandWidth) * this.dip);
+        this.minHatWidth = (int) (((float) this.minHatWidth) * this.dip);
+        this.minLoopWidth = (int) (((float) this.minLoopWidth) * this.dip);
+        this.defaultSpace = (int) (((float) this.defaultSpace) * this.dip);
+        String str = this.mType;
+        char c = 65535;
+        switch (str.hashCode()) {
+            case 32:
+                if (str.equals(" ")) {
+                    c = 0;
+                    break;
+                }
+                break;
+            case 98:
+                if (str.equals("b")) {
+                    c = 1;
+                    break;
+                }
+                break;
+            case 99:
+                if (str.equals("c")) {
+                    c = 4;
+                    break;
+                }
+                break;
+            case 100:
+                if (str.equals("d")) {
+                    c = 3;
+                    break;
+                }
+                break;
+            case 101:
+                if (str.equals("e")) {
+                    c = 6;
+                    break;
+                }
+                break;
+            case 102:
+                if (str.equals("f")) {
+                    c = 7;
+                    break;
+                }
+                break;
+            case 104:
+                if (str.equals("h")) {
+                    c = 8;
+                    break;
+                }
+                break;
+            case 115:
+                if (str.equals("s")) {
+                    c = 2;
+                    break;
+                }
+                break;
+            case 3171:
+                if (str.equals("cf")) {
+                    c = 5;
+                    break;
+                }
+                break;
         }
-        break;
-      case 104:
-        if (str.equals("h")) {
-          c = '\b';
-          break;
+        switch (c) {
+            case 1:
+            case 2:
+                this.isReporter = true;
+                break;
+            case 3:
+                this.isReporter = true;
+                this.isRequester = false;
+                this.forcedRequester = false;
+                break;
+            case 5:
+                this.isTerminal = true;
+                break;
+            case BlockBase.HatShape /*7*/:
+                this.isTerminal = true;
+                break;
+            case BlockBase.ProcHatShape /*8*/:
+                this.isHat = true;
+                break;
         }
-        break;
-      case 115:
-        if (str.equals("s")) {
-          c = 2;
-          break;
+        if (!this.isHat && !this.mOpCode.equals("definedFunc") && !this.mOpCode.equals("getVar") && !this.mOpCode.equals("getArg") && (identifier = getResources().getIdentifier("block_" + BlockUtil.getSpecStringId(this.mOpCode, this.mType), "string", getContext().getPackageName())) > 0) {
+            this.mSpec = getResources().getString(identifier);
         }
-        break;
-      case 3171:
-        if (str.equals("cf")) {
-          c = 5;
-          break;
+        setSpec(this.mSpec, this.mDefaultArgs);
+        this.mColor = BlockUtil.getBlockColor(this.mOpCode, this.mType);
+    }
+
+    private TextView makeLabel(String str) {
+        TextView textView = new TextView(this.mContext);
+        textView.setText(str);
+        textView.setTextSize(10.0f);
+        textView.setPadding(0, 0, 0, 0);
+        textView.setGravity(16);
+        textView.setTextColor(-1);
+        textView.setTypeface((Typeface) null, 1);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(-2, this.labelAndArgHeight);
+        layoutParams.setMargins(0, 0, 0, 0);
+        textView.setLayoutParams(layoutParams);
+        return textView;
+    }
+
+    public void actionClick(float f, float f2) {
+        Iterator<View> it = this.args.iterator();
+        while (it.hasNext()) {
+            View next = it.next();
+            if ((next instanceof BlockArg) && next.getX() < f && next.getX() + ((float) next.getWidth()) > f && next.getY() < f2 && next.getY() + ((float) next.getHeight()) > f2) {
+                ((BlockArg) next).showPopup();
+            }
         }
-        break;
     }
-    switch (c) {
-      case BLOCK_TYPE_INPALETTE /* 1 */:
-      case BLOCK_TYPE_HAT /* 2 */:
-        this.isReporter = true;
-        break;
-      case 3:
-        this.isReporter = true;
-        this.isRequester = false;
-        this.forcedRequester = false;
-        break;
-      case 5:
-        this.isTerminal = true;
-        break;
-      case 7:
-        this.isTerminal = true;
-        break;
-      case '\b':
-        this.isHat = true;
-        break;
-    }
-    if (!this.isHat
-        && !this.mOpCode.equals("definedFunc")
-        && !this.mOpCode.equals("getVar")
-        && !this.mOpCode.equals("getArg")) {
-      String stringId = "block_" + DefineBlock.getSpecStringId(this.mOpCode, this.mType);
-      int resId = getResources().getIdentifier(stringId, "string", getContext().getPackageName());
-      if (resId > 0) {
-        this.mSpec = getResources().getString(resId);
-      }
-    }
-    setSpec(this.mSpec, this.mDefaultArgs);
-    this.mColor = DefineBlock.getBlockColor(this.mOpCode, this.mType);
-  }
 
-  public void setBlockType(int type) {
-    this.blockType = type;
-    if (this.blockType == 1 || this.blockType == 2) {
-      for (int i = 0; i < this.labelsAndArgs.size(); i++) {
-        BlockArg blockArg = (View) this.labelsAndArgs.get(i);
-        if (blockArg instanceof BlockArg) {
-          blockArg.setEditable(false);
+    public String argType(View view) {
+        int indexOf = this.labelsAndArgs.indexOf(view);
+        return indexOf == -1 ? "" : this.argTypes.get(indexOf);
+    }
+
+    public Block bottomBlock() {
+        Block block = this;
+        while (block.nextBlock != -1) {
+            block = (Block) this.pane.findViewWithTag(Integer.valueOf(block.nextBlock));
         }
-      }
+        return block;
     }
-  }
 
-  public int getBlockType() {
-    return this.blockType;
-  }
-
-  public void setSpec(String newSpec, Object[] defaultArgs) {
-    this.mSpec = newSpec;
-    removeAllViews();
-    addLabelsAndArgs(this.mSpec, this.mColor);
-    Iterator<View> it = this.labelsAndArgs.iterator();
-    while (it.hasNext()) {
-      View item = it.next();
-      addView(item);
-    }
-    collectArgs();
-    if (this.mType.equals("e")) {
-      this.elseLabel = makeLabel(getResources().getString(2131230795));
-      addView(this.elseLabel);
-    }
-    fixLayout();
-  }
-
-  public void fixLayout() {
-    bringToFront();
-    int x = this.indentLeft;
-    for (int i = 0; i < this.labelsAndArgs.size(); i++) {
-      BlockArg blockArg = (View) this.labelsAndArgs.get(i);
-      blockArg.bringToFront();
-      if (blockArg instanceof Block) {
-        blockArg.setX(getX() + x);
-      } else {
-        blockArg.setX(x);
-      }
-      int width = 0;
-      if (this.argTypes.get(i).equals("label")) {
-        width = getLabelWidth((TextView) blockArg);
-      }
-      if (blockArg instanceof BlockArg) {
-        width = blockArg.getW();
-      }
-      if (blockArg instanceof Block) {
-        width = ((Block) blockArg).getWidthSum();
-      }
-      x += this.defaultSpace + width;
-      if (blockArg instanceof Block) {
-        blockArg.setY(
-            (((this.childDepth - ((Block) blockArg).childDepth) - 1) * this.childInset)
-                + this.indentTop
-                + getY());
-        ((Block) blockArg).fixLayout();
-      } else {
-        blockArg.setY(this.indentTop + (this.childDepth * this.childInset));
-      }
-    }
-    if (this.mType.equals("b") || this.mType.equals("d") || this.mType.equals("s")) {
-      x = Math.max(x, this.minReporterWidth);
-    }
-    if (this.mType.equals(" ") || this.mType.equals("") || this.mType.equals("f")) {
-      x = Math.max(x, this.minCommandWidth);
-    }
-    if (this.mType.equals("c") || this.mType.equals("cf") || this.mType.equals("e")) {
-      x = Math.max(x, this.minLoopWidth);
-    }
-    if (this.mType.equals("h")) {
-      x = Math.max(x, this.minHatWidth);
-    }
-    setWidthAndTopHeight(
-        this.indentRight + x,
-        this.indentTop
-            + this.labelAndArgHeight
-            + (this.childDepth * this.childInset * 2)
-            + this.indentBottom,
-        true);
-    if (canHaveSubstack1()) {
-      int substackH = this.EmptySubstackH;
-      if (this.subStack1 > -1) {
-        Block sub1 = (Block) this.pane.findViewWithTag(Integer.valueOf(this.subStack1));
-        sub1.setX(getX() + this.SubstackInset);
-        sub1.setY(getY() + substack1y());
-        sub1.bringToFront();
-        sub1.fixLayout();
-        substackH = sub1.getHeightSum();
-      }
-      setSubstack1Height(substackH);
-      int substackH2 = this.EmptySubstackH;
-      if (this.subStack2 > -1) {
-        Block sub2 = (Block) this.pane.findViewWithTag(Integer.valueOf(this.subStack2));
-        sub2.setX(getX() + this.SubstackInset);
-        sub2.setY(getY() + substack2y());
-        sub2.bringToFront();
-        sub2.fixLayout();
-        substackH2 = sub2.getHeightSum();
-        if (sub2.bottomBlock().isTerminal) {
-          substackH2 += this.NotchDepth;
+    public void fixLayout() {
+        bringToFront();
+        int i = this.indentLeft;
+        for (int i2 = 0; i2 < this.labelsAndArgs.size(); i2++) {
+            View view = this.labelsAndArgs.get(i2);
+            view.bringToFront();
+            if (view instanceof Block) {
+                view.setX(getX() + ((float) i));
+            } else {
+                view.setX((float) i);
+            }
+            int labelWidth = this.argTypes.get(i2).equals("label") ? getLabelWidth((TextView) view) : 0;
+            if (view instanceof BlockArg) {
+                labelWidth = ((BlockArg) view).getW();
+            }
+            if (view instanceof Block) {
+                labelWidth = ((Block) view).getWidthSum();
+            }
+            i += labelWidth + this.defaultSpace;
+            if (view instanceof Block) {
+                view.setY(((float) (((this.childDepth - ((Block) view).childDepth) - 1) * this.childInset)) + getY() + ((float) this.indentTop));
+                ((Block) view).fixLayout();
+            } else {
+                view.setY((float) (this.indentTop + (this.childDepth * this.childInset)));
+            }
         }
-      }
-      setSubstack2Height(substackH2);
-      fixElseLabel();
-    }
-    if (this.nextBlock > -1) {
-      Block next = (Block) this.pane.findViewWithTag(Integer.valueOf(this.nextBlock));
-      next.setX(getX());
-      next.setY(getY() + nextBlockY());
-      next.bringToFront();
-      next.fixLayout();
-    }
-  }
-
-  private void fixElseLabel() {
-    if (this.elseLabel != null) {
-      this.elseLabel.bringToFront();
-      this.elseLabel.setX(this.indentLeft);
-      this.elseLabel.setY(substack2y() - this.DividerH);
-    }
-  }
-
-  private void collectArgs() {
-    this.args = new ArrayList<>();
-    for (int i = 0; i < this.labelsAndArgs.size(); i++) {
-      View a = this.labelsAndArgs.get(i);
-      if ((a instanceof Block) || (a instanceof BlockArg)) {
-        this.args.add(a);
-      }
-    }
-  }
-
-  private void addLabelsAndArgs(String spec, int c) {
-    ArrayList<String> specParts = StringUtil.tokenize(spec);
-    this.labelsAndArgs = new ArrayList<>();
-    this.argTypes = new ArrayList<>();
-    for (int i = 0; i < specParts.size(); i++) {
-      BlockBase argOrLabelFor = argOrLabelFor(specParts.get(i), c);
-      if (argOrLabelFor instanceof BlockBase) {
-        argOrLabelFor.parentBlock = this;
-      }
-      this.labelsAndArgs.add(argOrLabelFor);
-      String argType = "icon";
-      if (argOrLabelFor instanceof BlockArg) {
-        String argType2 = specParts.get(i);
-        argType = argType2;
-      }
-      if (argOrLabelFor instanceof TextView) {
-        argType = "label";
-      }
-      this.argTypes.add(argType);
-    }
-  }
-
-  private View argOrLabelFor(String s, int c) {
-    if (s.length() >= 2 && s.charAt(0) == '%') {
-      char argSpec = s.charAt(1);
-      if (argSpec == 'b') {
-        return new BlockArg(this.mContext, "b", c, "");
-      }
-      if (argSpec == 'd') {
-        return new BlockArg(this.mContext, "d", c, "");
-      }
-      if (argSpec == 'm') {
-        return new BlockArg(this.mContext, "m", c, s.substring(3));
-      }
-      if (argSpec == 's') {
-        return new BlockArg(this.mContext, "s", c, s.length() > 2 ? s.substring(3) : "");
-      }
-    }
-    return makeLabel(StringUtil.unescape(s));
-  }
-
-  private TextView makeLabel(String label) {
-    TextView text = new TextView(this.mContext);
-    text.setText(label);
-    text.setTextSize(10.0f);
-    text.setPadding(0, 0, 0, 0);
-    text.setGravity(16);
-    text.setTextColor(-1);
-    text.setTypeface(null, 1);
-    RelativeLayout.LayoutParams lpText =
-        new RelativeLayout.LayoutParams(-2, this.labelAndArgHeight);
-    lpText.setMargins(0, 0, 0, 0);
-    text.setLayoutParams(lpText);
-    return text;
-  }
-
-  private int getLabelWidth(TextView tv) {
-    Rect bounds = new Rect();
-    Paint textPaint = tv.getPaint();
-    textPaint.getTextBounds(tv.getText().toString(), 0, tv.getText().length(), bounds);
-    return bounds.width();
-  }
-
-  public Block topBlock() {
-    Block result = this;
-    while (result.parentBlock != null) {
-      result = result.parentBlock;
-    }
-    return result;
-  }
-
-  public int getDepth() {
-    Block result = this;
-    int depth = 0;
-    while (result.parentBlock != null) {
-      result = result.parentBlock;
-      depth++;
-    }
-    return depth;
-  }
-
-  public Block bottomBlock() {
-    Block result = this;
-    while (result.nextBlock != -1) {
-      result = (Block) this.pane.findViewWithTag(Integer.valueOf(result.nextBlock));
-    }
-    return result;
-  }
-
-  public String argType(View arg) {
-    int i = this.labelsAndArgs.indexOf(arg);
-    return i == -1 ? "" : this.argTypes.get(i);
-  }
-
-  public void insertBlock(Block b) {
-    View oldNext = this.pane.findViewWithTag(Integer.valueOf(this.nextBlock));
-    if (oldNext != null) {
-      ((Block) oldNext).parentBlock = null;
-    }
-    b.parentBlock = this;
-    this.nextBlock = ((Integer) b.getTag()).intValue();
-    if (oldNext != null) {
-      b.appendBlock((Block) oldNext);
-    }
-  }
-
-  public void insertBlockAbove(Block b) {
-    b.setX(getX());
-    b.setY((getY() - b.getHeightSum()) + this.NotchDepth);
-    b.bottomBlock().insertBlock(this);
-  }
-
-  public void insertBlockAround(Block b) {
-    b.setX(getX() - this.SubstackInset);
-    b.setY(getY() - substack1y());
-    this.parentBlock = b;
-    b.subStack1 = ((Integer) getTag()).intValue();
-  }
-
-  public void insertBlockSub1(Block b) {
-    View old = this.pane.findViewWithTag(Integer.valueOf(this.subStack1));
-    if (old != null) {
-      ((Block) old).parentBlock = null;
-    }
-    b.parentBlock = this;
-    this.subStack1 = ((Integer) b.getTag()).intValue();
-    if (old != null) {
-      b.appendBlock((Block) old);
-    }
-  }
-
-  public void insertBlockSub2(Block b) {
-    View old = this.pane.findViewWithTag(Integer.valueOf(this.subStack2));
-    if (old != null) {
-      ((Block) old).parentBlock = null;
-    }
-    b.parentBlock = this;
-    this.subStack2 = ((Integer) b.getTag()).intValue();
-    if (old != null) {
-      b.appendBlock((Block) old);
-    }
-  }
-
-  public void removeBlock(Block target) {
-    if (this.nextBlock == ((Integer) target.getTag()).intValue()) {
-      this.nextBlock = -1;
-    }
-    if (this.subStack1 == ((Integer) target.getTag()).intValue()) {
-      this.subStack1 = -1;
-    }
-    if (this.subStack2 == ((Integer) target.getTag()).intValue()) {
-      this.subStack2 = -1;
-    }
-    if (target.isReporter) {
-      int index = this.labelsAndArgs.indexOf(target);
-      if (index >= 0) {
-        BlockBase argOrLabelFor = argOrLabelFor(this.argTypes.get(index), this.mColor);
-        if (argOrLabelFor instanceof BlockBase) {
-          argOrLabelFor.parentBlock = this;
+        if (this.mType.equals("b") || this.mType.equals("d") || this.mType.equals("s")) {
+            i = Math.max(i, this.minReporterWidth);
         }
-        this.labelsAndArgs.set(index, argOrLabelFor);
-        addView(argOrLabelFor);
+        if (this.mType.equals(" ") || this.mType.equals("") || this.mType.equals("f")) {
+            i = Math.max(i, this.minCommandWidth);
+        }
+        if (this.mType.equals("c") || this.mType.equals("cf") || this.mType.equals("e")) {
+            i = Math.max(i, this.minLoopWidth);
+        }
+        if (this.mType.equals("h")) {
+            i = Math.max(i, this.minHatWidth);
+        }
+        setWidthAndTopHeight((float) (this.indentRight + i), (float) (this.indentTop + this.labelAndArgHeight + (this.childDepth * this.childInset * 2) + this.indentBottom), true);
+        if (canHaveSubstack1()) {
+            int i3 = this.EmptySubstackH;
+            if (this.subStack1 > -1) {
+                Block block = (Block) this.pane.findViewWithTag(Integer.valueOf(this.subStack1));
+                block.setX(getX() + ((float) this.SubstackInset));
+                block.setY(getY() + ((float) substack1y()));
+                block.bringToFront();
+                block.fixLayout();
+                i3 = block.getHeightSum();
+            }
+            setSubstack1Height(i3);
+            int i4 = this.EmptySubstackH;
+            if (this.subStack2 > -1) {
+                Block block2 = (Block) this.pane.findViewWithTag(Integer.valueOf(this.subStack2));
+                block2.setX(getX() + ((float) this.SubstackInset));
+                block2.setY(getY() + ((float) substack2y()));
+                block2.bringToFront();
+                block2.fixLayout();
+                int heightSum = block2.getHeightSum();
+                i4 = block2.bottomBlock().isTerminal ? this.NotchDepth + heightSum : heightSum;
+            }
+            setSubstack2Height(i4);
+            fixElseLabel();
+        }
+        if (this.nextBlock > -1) {
+            Block block3 = (Block) this.pane.findViewWithTag(Integer.valueOf(this.nextBlock));
+            block3.setX(getX());
+            block3.setY(getY() + ((float) nextBlockY()));
+            block3.bringToFront();
+            block3.fixLayout();
+        }
+    }
+
+    public ArrayList<Block> getAllChildren() {
+        ArrayList<Block> arrayList = new ArrayList<>();
+        Block block = this;
+        while (true) {
+            arrayList.add(block);
+            Iterator<View> it = block.labelsAndArgs.iterator();
+            while (it.hasNext()) {
+                View next = it.next();
+                if (next instanceof Block) {
+                    arrayList.addAll(((Block) next).getAllChildren());
+                }
+            }
+            if (block.canHaveSubstack1() && block.subStack1 != -1) {
+                arrayList.addAll(((Block) this.pane.findViewWithTag(Integer.valueOf(block.subStack1))).getAllChildren());
+            }
+            if (block.canHaveSubstack2() && block.subStack2 != -1) {
+                arrayList.addAll(((Block) this.pane.findViewWithTag(Integer.valueOf(block.subStack2))).getAllChildren());
+            }
+            if (block.nextBlock == -1) {
+                return arrayList;
+            }
+            block = (Block) this.pane.findViewWithTag(Integer.valueOf(block.nextBlock));
+        }
+    }
+
+    public BlockBean getBean() {
+        BlockBean blockBean = new BlockBean();
+        blockBean.id = getTag().toString();
+        blockBean.spec = this.mSpec;
+        blockBean.type = this.mType;
+        blockBean.opCode = this.mOpCode;
+        blockBean.color = this.mColor;
+        Iterator<View> it = this.args.iterator();
+        while (it.hasNext()) {
+            View next = it.next();
+            if (next instanceof BlockArg) {
+                blockBean.parameters.add(((BlockArg) next).getArgValue().toString());
+                blockBean.paramTypes.add(((BlockArg) next).mType);
+            } else if (next instanceof Block) {
+                blockBean.parameters.add("@" + next.getTag().toString());
+                blockBean.paramTypes.add(((Block) next).mType);
+            }
+        }
+        blockBean.subStack1 = this.subStack1;
+        blockBean.subStack2 = this.subStack2;
+        blockBean.nextBlock = this.nextBlock;
+        return blockBean;
+    }
+
+    public int getBlockType() {
+        return this.blockType;
+    }
+
+    public int getDepth() {
+        int i = 0;
+        while (this.parentBlock != null) {
+            this = this.parentBlock;
+            i++;
+        }
+        return i;
+    }
+
+    public int getHeightSum() {
+        int i = 0;
+        Block block = this;
+        while (true) {
+            i = block.getTotalHeight() + (i > 0 ? i - this.NotchDepth : i);
+            if (block.nextBlock == -1) {
+                return i;
+            }
+            block = (Block) this.pane.findViewWithTag(Integer.valueOf(block.nextBlock));
+        }
+    }
+
+    public int getWidthSum() {
+        Block block = this;
+        int i = 0;
+        while (true) {
+            i = Math.max(i, block.getW());
+            if (block.canHaveSubstack1() && block.subStack1 != -1) {
+                i = Math.max(i, ((Block) this.pane.findViewWithTag(Integer.valueOf(block.subStack1))).getWidthSum() + this.SubstackInset);
+            }
+            if (block.canHaveSubstack2() && block.subStack2 != -1) {
+                i = Math.max(i, ((Block) this.pane.findViewWithTag(Integer.valueOf(block.subStack2))).getWidthSum() + this.SubstackInset);
+            }
+            if (block.nextBlock == -1) {
+                return i;
+            }
+            block = (Block) this.pane.findViewWithTag(Integer.valueOf(block.nextBlock));
+        }
+    }
+
+    public void insertBlock(Block block) {
+        View findViewWithTag = this.pane.findViewWithTag(Integer.valueOf(this.nextBlock));
+        if (findViewWithTag != null) {
+            ((Block) findViewWithTag).parentBlock = null;
+        }
+        block.parentBlock = this;
+        this.nextBlock = ((Integer) block.getTag()).intValue();
+        if (findViewWithTag != null) {
+            block.appendBlock((Block) findViewWithTag);
+        }
+    }
+
+    public void insertBlockAbove(Block block) {
+        block.setX(getX());
+        block.setY((getY() - ((float) block.getHeightSum())) + ((float) this.NotchDepth));
+        block.bottomBlock().insertBlock(this);
+    }
+
+    public void insertBlockAround(Block block) {
+        block.setX(getX() - ((float) this.SubstackInset));
+        block.setY(getY() - ((float) substack1y()));
+        this.parentBlock = block;
+        block.subStack1 = ((Integer) getTag()).intValue();
+    }
+
+    public void insertBlockSub1(Block block) {
+        View findViewWithTag = this.pane.findViewWithTag(Integer.valueOf(this.subStack1));
+        if (findViewWithTag != null) {
+            ((Block) findViewWithTag).parentBlock = null;
+        }
+        block.parentBlock = this;
+        this.subStack1 = ((Integer) block.getTag()).intValue();
+        if (findViewWithTag != null) {
+            block.appendBlock((Block) findViewWithTag);
+        }
+    }
+
+    public void insertBlockSub2(Block block) {
+        View findViewWithTag = this.pane.findViewWithTag(Integer.valueOf(this.subStack2));
+        if (findViewWithTag != null) {
+            ((Block) findViewWithTag).parentBlock = null;
+        }
+        block.parentBlock = this;
+        this.subStack2 = ((Integer) block.getTag()).intValue();
+        if (findViewWithTag != null) {
+            block.appendBlock((Block) findViewWithTag);
+        }
+    }
+
+    public void log() {
+    }
+
+    public void recalcWidthToParent() {
+        while (true) {
+            this.recalculateWidth();
+            if (this.parentBlock != null) {
+                this = this.parentBlock;
+            } else {
+                return;
+            }
+        }
+    }
+
+    public void recalculateWidth() {
+        int i = 0;
+        int i2 = this.indentLeft;
+        while (i < this.labelsAndArgs.size()) {
+            View view = this.labelsAndArgs.get(i);
+            int labelWidth = this.argTypes.get(i).equals("label") ? getLabelWidth((TextView) view) : 0;
+            if (view instanceof BlockArg) {
+                labelWidth = ((BlockArg) view).getW();
+            }
+            if (view instanceof Block) {
+                labelWidth = ((Block) view).getWidthSum();
+            }
+            i++;
+            i2 = labelWidth + this.defaultSpace + i2;
+        }
+        if (this.mType.equals("b") || this.mType.equals("d") || this.mType.equals("s")) {
+            i2 = Math.max(i2, this.minReporterWidth);
+        }
+        if (this.mType.equals(" ") || this.mType.equals("") || this.mType.equals("o")) {
+            i2 = Math.max(i2, this.minCommandWidth);
+        }
+        if (this.mType.equals("c") || this.mType.equals("cf") || this.mType.equals("e")) {
+            i2 = Math.max(i2, this.minLoopWidth);
+        }
+        if (this.mType.equals("h")) {
+            i2 = Math.max(i2, this.minHatWidth);
+        }
+        if (this.elseLabel != null) {
+            i2 = Math.max(i2, this.indentLeft + this.elseLabel.getWidth() + 2);
+        }
+        setWidthAndTopHeight((float) (this.indentRight + i2), (float) (this.indentTop + this.labelAndArgHeight + (this.childDepth * this.childInset * 2) + this.indentBottom), false);
+    }
+
+    public void refreshChildDepth() {
+        while (this != null) {
+            Iterator<View> it = this.args.iterator();
+            int i = 0;
+            while (it.hasNext()) {
+                View next = it.next();
+                if (next instanceof Block) {
+                    i = Math.max(i, ((Block) next).childDepth + 1);
+                }
+            }
+            this.childDepth = i;
+            this.recalculateWidth();
+            if (this.isReporter) {
+                this = this.parentBlock;
+            } else {
+                return;
+            }
+        }
+    }
+
+    public void removeBlock(Block block) {
+        if (this.nextBlock == ((Integer) block.getTag()).intValue()) {
+            this.nextBlock = -1;
+        }
+        if (this.subStack1 == ((Integer) block.getTag()).intValue()) {
+            this.subStack1 = -1;
+        }
+        if (this.subStack2 == ((Integer) block.getTag()).intValue()) {
+            this.subStack2 = -1;
+        }
+        if (block.isReporter) {
+            int indexOf = this.labelsAndArgs.indexOf(block);
+            if (indexOf >= 0) {
+                View argOrLabelFor = argOrLabelFor(this.argTypes.get(indexOf), this.mColor);
+                if (argOrLabelFor instanceof BlockBase) {
+                    ((BlockBase) argOrLabelFor).parentBlock = this;
+                }
+                this.labelsAndArgs.set(indexOf, argOrLabelFor);
+                addView(argOrLabelFor);
+                collectArgs();
+                refreshChildDepth();
+            } else {
+                return;
+            }
+        }
+        topBlock().fixLayout();
+    }
+
+    public void replaceArgWithBlock(BlockBase blockBase, Block block) {
+        int indexOf = this.labelsAndArgs.indexOf(blockBase);
+        if (indexOf >= 0) {
+            if (!(blockBase instanceof Block)) {
+                removeView(blockBase);
+            }
+            this.labelsAndArgs.set(indexOf, block);
+            block.parentBlock = this;
+            collectArgs();
+            refreshChildDepth();
+            if (blockBase instanceof Block) {
+                blockBase.parentBlock = null;
+                blockBase.setX(getX() + ((float) getWidthSum()) + 10.0f);
+                blockBase.setY(getY() + 5.0f);
+                ((Block) blockBase).fixLayout();
+            }
+        }
+    }
+
+    public void setBlockType(int i) {
+        this.blockType = i;
+        if (this.blockType == 1 || this.blockType == 2) {
+            for (int i2 = 0; i2 < this.labelsAndArgs.size(); i2++) {
+                View view = this.labelsAndArgs.get(i2);
+                if (view instanceof BlockArg) {
+                    ((BlockArg) view).setEditable(false);
+                }
+            }
+        }
+    }
+
+    public void setSpec(String str, Object[] objArr) {
+        this.mSpec = str;
+        removeAllViews();
+        addLabelsAndArgs(this.mSpec, this.mColor);
+        Iterator<View> it = this.labelsAndArgs.iterator();
+        while (it.hasNext()) {
+            addView(it.next());
+        }
         collectArgs();
-        refreshChildDepth();
-      } else {
-        return;
-      }
-    }
-    topBlock().fixLayout();
-  }
-
-  public void replaceArgWithBlock(BlockBase oldArg, Block b) {
-    int i = this.labelsAndArgs.indexOf(oldArg);
-    if (i >= 0) {
-      if (!(oldArg instanceof Block)) {
-        removeView(oldArg);
-      }
-      this.labelsAndArgs.set(i, b);
-      b.parentBlock = this;
-      collectArgs();
-      refreshChildDepth();
-      if (oldArg instanceof Block) {
-        oldArg.parentBlock = null;
-        oldArg.setX(getX() + getWidthSum() + 10.0f);
-        oldArg.setY(getY() + 5.0f);
-        ((Block) oldArg).fixLayout();
-      }
-    }
-  }
-
-  private void appendBlock(Block b) {
-    if (canHaveSubstack1() && -1 == this.subStack1) {
-      insertBlockSub1(b);
-      return;
-    }
-    Block bottom = bottomBlock();
-    bottom.nextBlock = ((Integer) b.getTag()).intValue();
-    b.parentBlock = bottom;
-  }
-
-  public int getWidthSum() {
-    Block b = this;
-    int result = 0;
-    while (true) {
-      result = Math.max(result, b.getW());
-      if (b.canHaveSubstack1() && b.subStack1 != -1) {
-        result =
-            Math.max(
-                result,
-                ((Block) this.pane.findViewWithTag(Integer.valueOf(b.subStack1))).getWidthSum()
-                    + this.SubstackInset);
-      }
-      if (b.canHaveSubstack2() && b.subStack2 != -1) {
-        result =
-            Math.max(
-                result,
-                ((Block) this.pane.findViewWithTag(Integer.valueOf(b.subStack2))).getWidthSum()
-                    + this.SubstackInset);
-      }
-      if (b.nextBlock != -1) {
-        b = (Block) this.pane.findViewWithTag(Integer.valueOf(b.nextBlock));
-      } else {
-        return result;
-      }
-    }
-  }
-
-  public int getHeightSum() {
-    Block b = this;
-    int result = 0;
-    while (true) {
-      if (result > 0) {
-        result -= this.NotchDepth;
-      }
-      result += b.getTotalHeight();
-      if (b.nextBlock != -1) {
-        b = (Block) this.pane.findViewWithTag(Integer.valueOf(b.nextBlock));
-      } else {
-        return result;
-      }
-    }
-  }
-
-  public void log() {}
-
-  public ArrayList<Block> getAllChildren() {
-    ArrayList<Block> ret = new ArrayList<>();
-    Block b = this;
-    while (true) {
-      ret.add(b);
-      Iterator<View> it = b.labelsAndArgs.iterator();
-      while (it.hasNext()) {
-        View v = it.next();
-        if (v instanceof Block) {
-          ret.addAll(((Block) v).getAllChildren());
+        if (this.mType.equals("e")) {
+            this.elseLabel = makeLabel(getResources().getString(2131230795));
+            addView(this.elseLabel);
         }
-      }
-      if (b.canHaveSubstack1() && b.subStack1 != -1) {
-        Block sub1 = (Block) this.pane.findViewWithTag(Integer.valueOf(b.subStack1));
-        ret.addAll(sub1.getAllChildren());
-      }
-      if (b.canHaveSubstack2() && b.subStack2 != -1) {
-        Block sub2 = (Block) this.pane.findViewWithTag(Integer.valueOf(b.subStack2));
-        ret.addAll(sub2.getAllChildren());
-      }
-      if (b.nextBlock != -1) {
-        b = (Block) this.pane.findViewWithTag(Integer.valueOf(b.nextBlock));
-      } else {
-        return ret;
-      }
+        fixLayout();
     }
-  }
 
-  public void refreshChildDepth() {
-    for (Block b = this; b != null; b = b.parentBlock) {
-      int maxDepth = 0;
-      Iterator<View> it = b.args.iterator();
-      while (it.hasNext()) {
-        View v = it.next();
-        if (v instanceof Block) {
-          Block arg = (Block) v;
-          maxDepth = Math.max(maxDepth, arg.childDepth + 1);
+    public Block topBlock() {
+        while (this.parentBlock != null) {
+            this = this.parentBlock;
         }
-      }
-      b.childDepth = maxDepth;
-      b.recalculateWidth();
-      if (!b.isReporter) {
-        return;
-      }
+        return this;
     }
-  }
-
-  public void recalculateWidth() {
-    int x = this.indentLeft;
-    for (int i = 0; i < this.labelsAndArgs.size(); i++) {
-      BlockArg blockArg = (View) this.labelsAndArgs.get(i);
-      int width = 0;
-      if (this.argTypes.get(i).equals("label")) {
-        width = getLabelWidth((TextView) blockArg);
-      }
-      if (blockArg instanceof BlockArg) {
-        width = blockArg.getW();
-      }
-      if (blockArg instanceof Block) {
-        width = ((Block) blockArg).getWidthSum();
-      }
-      x += this.defaultSpace + width;
-    }
-    if (this.mType.equals("b") || this.mType.equals("d") || this.mType.equals("s")) {
-      x = Math.max(x, this.minReporterWidth);
-    }
-    if (this.mType.equals(" ") || this.mType.equals("") || this.mType.equals("o")) {
-      x = Math.max(x, this.minCommandWidth);
-    }
-    if (this.mType.equals("c") || this.mType.equals("cf") || this.mType.equals("e")) {
-      x = Math.max(x, this.minLoopWidth);
-    }
-    if (this.mType.equals("h")) {
-      x = Math.max(x, this.minHatWidth);
-    }
-    if (this.elseLabel != null) {
-      x = Math.max(x, this.indentLeft + this.elseLabel.getWidth() + 2);
-    }
-    setWidthAndTopHeight(
-        this.indentRight + x,
-        this.indentTop
-            + this.labelAndArgHeight
-            + (this.childDepth * this.childInset * 2)
-            + this.indentBottom,
-        false);
-  }
-
-  public void recalcWidthToParent() {
-    Block b = this;
-    while (true) {
-      b.recalculateWidth();
-      if (b.parentBlock != null) {
-        b = b.parentBlock;
-      } else {
-        return;
-      }
-    }
-  }
-
-  public BlockBean getBean() {
-    BlockBean bean = new BlockBean();
-    bean.id = getTag().toString();
-    bean.spec = this.mSpec;
-    bean.type = this.mType;
-    bean.opCode = this.mOpCode;
-    bean.color = this.mColor;
-    Iterator<View> it = this.args.iterator();
-    while (it.hasNext()) {
-      BlockArg blockArg = (View) it.next();
-      if (blockArg instanceof BlockArg) {
-        bean.parameters.add(blockArg.getArgValue().toString());
-        bean.paramTypes.add(blockArg.mType);
-      } else if (blockArg instanceof Block) {
-        bean.parameters.add("@" + blockArg.getTag().toString());
-        bean.paramTypes.add(((Block) blockArg).mType);
-      }
-    }
-    bean.subStack1 = this.subStack1;
-    bean.subStack2 = this.subStack2;
-    bean.nextBlock = this.nextBlock;
-    return bean;
-  }
-
-  public void actionClick(float posX, float posY) {
-    Iterator<View> it = this.args.iterator();
-    while (it.hasNext()) {
-      BlockArg blockArg = (View) it.next();
-      if ((blockArg instanceof BlockArg)
-          && blockArg.getX() < posX
-          && blockArg.getX() + blockArg.getWidth() > posX
-          && blockArg.getY() < posY
-          && blockArg.getY() + blockArg.getHeight() > posY) {
-        blockArg.showPopup();
-      }
-    }
-  }
 }

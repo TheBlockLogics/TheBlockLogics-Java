@@ -2,7 +2,7 @@ package dev.trindadedev.theblocklogicsjava.utils;
 
 // decompile from Sketchware 1.1.13
 
-public class BlockUtils {
+public class BlockUtil {
   public static final int BLOCK_COLOR_ALL = -16740914;
   public static final int BLOCK_COLOR_ARG_BOOL = 1342177280;
   public static final int BLOCK_COLOR_ARG_FLOAT = -3155748;

@@ -1,7 +1,5 @@
 package dev.trindadedev.theblocklogicsjava.ui.editor.block;
 
-// decompile from Sketchware 1.1.13
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -13,806 +11,640 @@ import android.widget.RelativeLayout;
 import dev.trindadedev.theblocklogicsjava.utils.LayoutUtil;
 
 public class BlockBase extends RelativeLayout {
-  public static final int BooleanShape = 2;
-  public static final int CmdOutlineShape = 6;
-  public static final int CmdShape = 4;
-  public static final int DropdownShape = 12;
-  public static final int FinalCmdShape = 5;
-  public static final int FinalLoopShape = 10;
-  public static final int HatShape = 7;
-  public static final int IfElseShape = 11;
-  public static final int LoopShape = 9;
-  public static final int NumberShape = 3;
-  public static final int ProcHatShape = 8;
-  public static final int RectShape = 1;
-  protected int BottomBarH;
-  protected int CornerInset;
-  protected int DividerH;
-  public int EmptySubstackH;
-  protected int InnerCornerInset;
-  public int NotchDepth;
-  protected int NotchL1;
-  protected int NotchL2;
-  protected int NotchR1;
-  protected int NotchR2;
-  public int SubstackInset;
-  protected int childInset;
-  private int defaultColor;
-  public int defaultWidth;
-  protected float dip;
-  public int dropdownArea;
-  public int dropdownIndent;
-  public int dropdownWidth;
-  protected int hatHeight;
-  protected int hatWidth;
-  protected int indentBottom;
-  protected int indentLeft;
-  protected int indentRight;
-  protected int indentTop;
-  private boolean isNeedReflection;
-  private boolean isNeedShadow;
-  public int labelAndArgHeight;
-  public int mColor;
-  protected Context mContext;
-  public Paint mDropdownPaint;
-  public boolean mIsArg;
-  public Paint mPaint;
-  public Paint mReflectionPaint;
-  public Paint mShadowPaint;
-  public int mShapeType;
-  public String mType;
-  public Block parentBlock;
-  private int reflectionWidth;
-  private int shadowWidth;
-  protected int substack1H;
-  protected int substack2H;
-  protected int topH;
-  protected int w;
+    public static final int BooleanShape = 2;
+    public static final int CmdOutlineShape = 6;
+    public static final int CmdShape = 4;
+    public static final int DropdownShape = 12;
+    public static final int FinalCmdShape = 5;
+    public static final int FinalLoopShape = 10;
+    public static final int HatShape = 7;
+    public static final int IfElseShape = 11;
+    public static final int LoopShape = 9;
+    public static final int NumberShape = 3;
+    public static final int ProcHatShape = 8;
+    public static final int RectShape = 1;
+    protected int BottomBarH = 15;
+    protected int CornerInset = 3;
+    protected int DividerH = 15;
+    public int EmptySubstackH = 12;
+    protected int InnerCornerInset = 2;
+    public int NotchDepth = 3;
+    protected int NotchL1 = 15;
+    protected int NotchL2 = (this.NotchL1 + this.NotchDepth);
+    protected int NotchR1 = (this.NotchL2 + 10);
+    protected int NotchR2 = (this.NotchR1 + this.NotchDepth);
+    public int SubstackInset = 15;
+    protected int childInset = 2;
+    private int defaultColor = 805306368;
+    public int defaultWidth = 100;
+    protected float dip;
+    public int dropdownArea = 15;
+    public int dropdownIndent = 4;
+    public int dropdownWidth = 6;
+    protected int hatHeight = 6;
+    protected int hatWidth = 60;
+    protected int indentBottom = 2;
+    protected int indentLeft = 3;
+    protected int indentRight = 0;
+    protected int indentTop = 2;
+    private boolean isNeedReflection = false;
+    private boolean isNeedShadow = false;
+    public int labelAndArgHeight = 14;
+    public int mColor;
+    protected Context mContext;
+    public Paint mDropdownPaint;
+    public boolean mIsArg;
+    public Paint mPaint;
+    public Paint mReflectionPaint;
+    public Paint mShadowPaint;
+    public int mShapeType;
+    public String mType;
+    public Block parentBlock = null;
+    private int reflectionWidth = 1;
+    private int shadowWidth = 1;
+    protected int substack1H = this.EmptySubstackH;
+    protected int substack2H = this.EmptySubstackH;
+    protected int topH;
+    protected int w;
 
-  public BlockBase(Context context, String type, boolean isArg) {
-    super(context);
-    this.NotchDepth = 3;
-    this.EmptySubstackH = 12;
-    this.SubstackInset = 15;
-    this.CornerInset = 3;
-    this.InnerCornerInset = 2;
-    this.BottomBarH = 15;
-    this.DividerH = 15;
-    this.NotchL1 = 15;
-    this.NotchL2 = this.NotchL1 + this.NotchDepth;
-    this.NotchR1 = this.NotchL2 + 10;
-    this.NotchR2 = this.NotchR1 + this.NotchDepth;
-    this.hatHeight = 6;
-    this.hatWidth = 60;
-    this.indentTop = 2;
-    this.indentBottom = 2;
-    this.indentLeft = 3;
-    this.indentRight = 0;
-    this.childInset = 2;
-    this.substack1H = this.EmptySubstackH;
-    this.substack2H = this.EmptySubstackH;
-    this.parentBlock = null;
-    this.defaultWidth = 100;
-    this.labelAndArgHeight = 14;
-    this.dropdownArea = 15;
-    this.dropdownWidth = 6;
-    this.dropdownIndent = 4;
-    this.isNeedShadow = false;
-    this.isNeedReflection = false;
-    this.shadowWidth = 1;
-    this.reflectionWidth = 1;
-    this.defaultColor = 805306368;
-    this.mContext = context;
-    this.mType = type;
-    String str = this.mType;
-    char c = 65535;
-    switch (str.hashCode()) {
-      case 32:
-        if (str.equals(" ")) {
-          c = 0;
-          break;
+    public BlockBase(Context context, String str, boolean z) {
+        super(context);
+        this.mContext = context;
+        this.mType = str;
+        String str2 = this.mType;
+        char c = 65535;
+        switch (str2.hashCode()) {
+            case 32:
+                if (str2.equals(" ")) {
+                    c = 0;
+                    break;
+                }
+                break;
+            case 98:
+                if (str2.equals("b")) {
+                    c = 1;
+                    break;
+                }
+                break;
+            case 99:
+                if (str2.equals("c")) {
+                    c = 4;
+                    break;
+                }
+                break;
+            case 100:
+                if (str2.equals("d")) {
+                    c = 2;
+                    break;
+                }
+                break;
+            case 101:
+                if (str2.equals("e")) {
+                    c = 6;
+                    break;
+                }
+                break;
+            case 102:
+                if (str2.equals("f")) {
+                    c = 7;
+                    break;
+                }
+                break;
+            case 104:
+                if (str2.equals("h")) {
+                    c = 8;
+                    break;
+                }
+                break;
+            case 109:
+                if (str2.equals("m")) {
+                    c = 9;
+                    break;
+                }
+                break;
+            case 110:
+                if (str2.equals("n")) {
+                    c = 3;
+                    break;
+                }
+                break;
+            case 115:
+                if (str2.equals("s")) {
+                    c = 10;
+                    break;
+                }
+                break;
+            case 3171:
+                if (str2.equals("cf")) {
+                    c = 5;
+                    break;
+                }
+                break;
         }
-        break;
-      case 98:
-        if (str.equals("b")) {
-          c = 1;
-          break;
+        switch (c) {
+            case BlockPane.INSERT_NORMAL /*0*/:
+                this.indentTop = 4;
+                this.mShapeType = 4;
+                break;
+            case 1:
+                this.indentLeft = 8;
+                this.indentRight = 5;
+                this.mShapeType = 2;
+                break;
+            case 2:
+                this.mShapeType = 3;
+                this.indentLeft = 4;
+                break;
+            case 3:
+                this.mShapeType = 3;
+                break;
+            case 4:
+                this.indentTop = 4;
+                this.mShapeType = 9;
+                break;
+            case 5:
+                this.indentTop = 4;
+                this.mShapeType = 10;
+                break;
+            case CmdOutlineShape /*6*/:
+                this.indentTop = 4;
+                this.mShapeType = 11;
+                break;
+            case HatShape /*7*/:
+                this.indentTop = 4;
+                this.mShapeType = 5;
+                break;
+            case ProcHatShape /*8*/:
+                this.indentTop = 8;
+                this.mShapeType = 7;
+                break;
+            case LoopShape /*9*/:
+                this.mShapeType = 12;
+                break;
+            case FinalLoopShape /*10*/:
+                this.mShapeType = 1;
+                break;
         }
-        break;
-      case 99:
-        if (str.equals("c")) {
-          c = 4;
-          break;
+        this.mColor = this.defaultColor;
+        this.mIsArg = z;
+        setWillNotDraw(false);
+        init(context);
+    }
+
+    private void drawArm(Path path, int i) {
+        path.lineTo((float) this.SubstackInset, (float) (i - this.InnerCornerInset));
+        path.lineTo((float) (this.SubstackInset + this.InnerCornerInset), (float) i);
+        path.lineTo((float) (this.w - this.CornerInset), (float) i);
+        path.lineTo((float) this.w, (float) (this.CornerInset + i));
+    }
+
+    private void drawBooleanShape(Canvas canvas) {
+        Path path = new Path();
+        int i = this.topH / 2;
+        path.moveTo((float) i, (float) this.topH);
+        path.lineTo(0.0f, (float) i);
+        path.lineTo((float) i, 0.0f);
+        path.lineTo((float) (this.w - i), 0.0f);
+        path.lineTo((float) this.w, (float) i);
+        path.lineTo((float) (this.w - i), (float) this.topH);
+        canvas.drawPath(path, this.mPaint);
+        if (this.isNeedShadow) {
+            canvas.drawLines(getBooleanShadows(), this.mShadowPaint);
         }
-        break;
-      case 100:
-        if (str.equals("d")) {
-          c = 2;
-          break;
+        if (this.isNeedReflection) {
+            canvas.drawLines(getBooleanReflections(), this.mReflectionPaint);
         }
-        break;
-      case 101:
-        if (str.equals("e")) {
-          c = 6;
-          break;
+    }
+
+    private void drawCmdShape(Canvas canvas) {
+        boolean z = true;
+        Path path = new Path();
+        drawTop(path);
+        drawRightAndBottom(path, this.topH, this.mShapeType != 5, 0);
+        canvas.drawPath(path, this.mPaint);
+        if (this.isNeedShadow) {
+            canvas.drawLines(getRightShadows(0, this.topH), this.mShadowPaint);
+            int i = this.topH;
+            if (this.mShapeType == 5) {
+                z = false;
+            }
+            canvas.drawLines(getBottomShadows(i, z, 0), this.mShadowPaint);
         }
-        break;
-      case 102:
-        if (str.equals("f")) {
-          c = 7;
-          break;
+        if (this.isNeedReflection) {
+            canvas.drawLines(getCommandReflections(this.topH), this.mReflectionPaint);
         }
-        break;
-      case 104:
-        if (str.equals("h")) {
-          c = '\b';
-          break;
+    }
+
+    private void drawDropdownShape(Canvas canvas) {
+        canvas.drawRect(new Rect(0, 0, this.w, this.topH), this.mPaint);
+        Path path = new Path();
+        path.moveTo((float) (this.w - this.dropdownIndent), (float) this.dropdownIndent);
+        path.lineTo((float) ((this.w - this.dropdownIndent) - (this.dropdownWidth / 2)), (float) (this.dropdownIndent + this.dropdownWidth));
+        path.lineTo((float) ((this.w - this.dropdownIndent) - this.dropdownWidth), (float) this.dropdownIndent);
+        canvas.drawPath(path, this.mDropdownPaint);
+    }
+
+    private void drawHatShape(Canvas canvas) {
+        Path path = new Path();
+        path.moveTo(0.0f, (float) this.hatHeight);
+        path.arcTo(new RectF(0.0f, 0.0f, (float) this.hatWidth, (float) (this.hatHeight * 2)), 180.0f, 180.0f);
+        path.lineTo((float) (this.w - this.CornerInset), (float) this.hatHeight);
+        path.lineTo((float) this.w, (float) (this.hatHeight + this.CornerInset));
+        drawRightAndBottom(path, this.topH, true, 0);
+        canvas.drawPath(path, this.mPaint);
+        if (this.isNeedShadow) {
+            canvas.drawLines(getRightShadows(this.hatHeight, this.topH), this.mShadowPaint);
+            canvas.drawLines(getBottomShadows(this.topH, true, 0), this.mShadowPaint);
         }
-        break;
-      case 109:
-        if (str.equals("m")) {
-          c = '\t';
-          break;
+    }
+
+    private void drawIfElseShape(Canvas canvas) {
+        Path path = new Path();
+        int i = (this.topH + this.substack1H) - this.NotchDepth;
+        int i2 = ((this.DividerH + i) + this.substack2H) - this.NotchDepth;
+        drawTop(path);
+        drawRightAndBottom(path, this.topH, true, this.SubstackInset);
+        drawArm(path, i);
+        drawRightAndBottom(path, this.DividerH + i, true, this.SubstackInset);
+        drawArm(path, i2);
+        drawRightAndBottom(path, this.BottomBarH + i2, true, 0);
+        canvas.drawPath(path, this.mPaint);
+        if (this.isNeedShadow) {
+            canvas.drawLines(getRightShadows(0, this.topH), this.mShadowPaint);
+            canvas.drawLines(getBottomShadows(this.topH, true, this.SubstackInset), this.mShadowPaint);
+            canvas.drawLines(getArmShadows(this.topH, i), this.mShadowPaint);
+            canvas.drawLines(getRightShadows(i, this.DividerH + i), this.mShadowPaint);
+            canvas.drawLines(getBottomShadows(this.DividerH + i, true, this.SubstackInset), this.mShadowPaint);
+            canvas.drawLines(getArmShadows(this.DividerH + i, i2), this.mShadowPaint);
+            canvas.drawLines(getRightShadows(i2, this.BottomBarH + i2), this.mShadowPaint);
+            canvas.drawLines(getBottomShadows(this.BottomBarH + i2, true, 0), this.mShadowPaint);
         }
-        break;
-      case 110:
-        if (str.equals("n")) {
-          c = 3;
-          break;
+        if (this.isNeedReflection) {
+            canvas.drawLines(getCommandReflections(this.BottomBarH + i2), this.mReflectionPaint);
+            canvas.drawLines(getTopReflections(i, this.SubstackInset), this.mReflectionPaint);
+            canvas.drawLines(getTopReflections(i2, this.SubstackInset), this.mReflectionPaint);
         }
-        break;
-      case 115:
-        if (str.equals("s")) {
-          c = '\n';
-          break;
+    }
+
+    private void drawLoopShape(Canvas canvas) {
+        boolean z = true;
+        Path path = new Path();
+        int i = (this.topH + this.substack1H) - this.NotchDepth;
+        drawTop(path);
+        drawRightAndBottom(path, this.topH, true, this.SubstackInset);
+        drawArm(path, i);
+        drawRightAndBottom(path, this.BottomBarH + i, this.mShapeType == 9, 0);
+        canvas.drawPath(path, this.mPaint);
+        if (this.isNeedShadow) {
+            canvas.drawLines(getRightShadows(0, this.topH), this.mShadowPaint);
+            canvas.drawLines(getBottomShadows(this.topH, true, this.SubstackInset), this.mShadowPaint);
+            canvas.drawLines(getArmShadows(this.topH, i), this.mShadowPaint);
+            canvas.drawLines(getRightShadows(i, this.BottomBarH + i), this.mShadowPaint);
+            int i2 = this.BottomBarH;
+            if (this.mShapeType != 9) {
+                z = false;
+            }
+            canvas.drawLines(getBottomShadows(i2 + i, z, 0), this.mShadowPaint);
         }
-        break;
-      case 3171:
-        if (str.equals("cf")) {
-          c = 5;
-          break;
+        if (this.isNeedReflection) {
+            canvas.drawLines(getCommandReflections(this.BottomBarH + i), this.mReflectionPaint);
+            canvas.drawLines(getTopReflections(i, this.SubstackInset), this.mReflectionPaint);
         }
-        break;
     }
-    switch (c) {
-      case 0:
-        this.indentTop = 4;
-        this.mShapeType = 4;
-        break;
-      case RectShape /* 1 */:
-        this.indentLeft = 8;
-        this.indentRight = 5;
-        this.mShapeType = 2;
-        break;
-      case BooleanShape /* 2 */:
-        this.mShapeType = 3;
-        this.indentLeft = 4;
-        break;
-      case NumberShape /* 3 */:
-        this.mShapeType = 3;
-        break;
-      case CmdShape /* 4 */:
-        this.indentTop = 4;
-        this.mShapeType = 9;
-        break;
-      case FinalCmdShape /* 5 */:
-        this.indentTop = 4;
-        this.mShapeType = 10;
-        break;
-      case CmdOutlineShape /* 6 */:
-        this.indentTop = 4;
-        this.mShapeType = 11;
-        break;
-      case HatShape /* 7 */:
-        this.indentTop = 4;
-        this.mShapeType = 5;
-        break;
-      case ProcHatShape /* 8 */:
-        this.indentTop = 8;
-        this.mShapeType = 7;
-        break;
-      case LoopShape /* 9 */:
-        this.mShapeType = 12;
-        break;
-      case FinalLoopShape /* 10 */:
-        this.mShapeType = 1;
-        break;
+
+    private void drawNumberShape(Canvas canvas) {
+        Path path = new Path();
+        int i = this.topH / 2;
+        path.moveTo((float) i, (float) this.topH);
+        path.arcTo(new RectF(0.0f, 0.0f, (float) this.topH, (float) this.topH), 90.0f, 180.0f);
+        path.lineTo((float) (this.w - i), 0.0f);
+        path.arcTo(new RectF((float) (this.w - this.topH), 0.0f, (float) this.w, (float) this.topH), 270.0f, 180.0f);
+        canvas.drawPath(path, this.mPaint);
+        if (this.isNeedShadow) {
+            canvas.drawArc(new RectF((float) (this.w - this.topH), 0.0f, (float) (this.w - (this.shadowWidth / 2)), (float) (this.topH - (this.shadowWidth / 2))), 330.0f, 120.0f, false, this.mShadowPaint);
+            canvas.drawLines(getNumberBottomShadows(), this.mShadowPaint);
+            canvas.drawArc(new RectF((float) ((this.shadowWidth / 2) + 0), 0.0f, (float) this.topH, (float) (this.topH - (this.shadowWidth / 2))), 90.0f, 30.0f, false, this.mShadowPaint);
+        }
+        if (this.isNeedReflection) {
+            canvas.drawArc(new RectF((float) ((this.shadowWidth / 2) + 0), (float) ((this.shadowWidth / 2) + 0), (float) this.topH, (float) this.topH), 150.0f, 120.0f, false, this.mReflectionPaint);
+            canvas.drawLines(getNumberTopReflections(), this.mReflectionPaint);
+            canvas.drawArc(new RectF((float) (this.w - this.topH), (float) ((this.shadowWidth / 2) + 0), (float) (this.w - (this.shadowWidth / 2)), (float) this.topH), 270.0f, 30.0f, false, this.mReflectionPaint);
+        }
     }
-    this.mColor = this.defaultColor;
-    this.mIsArg = isArg;
-    setWillNotDraw(false);
-    init(context);
-  }
 
-  private void init(Context context) {
-    this.dip = LayoutUtil.getDip(context, 1.0f);
-    this.NotchDepth = (int) (this.NotchDepth * this.dip);
-    this.EmptySubstackH = (int) (this.EmptySubstackH * this.dip);
-    this.SubstackInset = (int) (this.SubstackInset * this.dip);
-    this.BottomBarH = (int) (this.BottomBarH * this.dip);
-    this.DividerH = (int) (this.DividerH * this.dip);
-    this.CornerInset = (int) (this.CornerInset * this.dip);
-    this.InnerCornerInset = (int) (this.InnerCornerInset * this.dip);
-    this.NotchL1 = (int) (this.NotchL1 * this.dip);
-    this.NotchL2 = (int) (this.NotchL2 * this.dip);
-    this.NotchR1 = (int) (this.NotchR1 * this.dip);
-    this.NotchR2 = (int) (this.NotchR2 * this.dip);
-    this.hatHeight = (int) (this.hatHeight * this.dip);
-    this.hatWidth = (int) (this.hatWidth * this.dip);
-    this.substack1H = (int) (this.substack1H * this.dip);
-    this.substack2H = (int) (this.substack2H * this.dip);
-    this.indentLeft = (int) (this.indentLeft * this.dip);
-    this.indentTop = (int) (this.indentTop * this.dip);
-    this.indentRight = (int) (this.indentRight * this.dip);
-    this.indentBottom = (int) (this.indentBottom * this.dip);
-    this.childInset = (int) (this.childInset * this.dip);
-    this.defaultWidth = (int) (this.defaultWidth * this.dip);
-    this.labelAndArgHeight = (int) (this.labelAndArgHeight * this.dip);
-    this.dropdownWidth = (int) (this.dropdownWidth * this.dip);
-    this.dropdownIndent = (int) (this.dropdownIndent * this.dip);
-    this.dropdownArea = (int) (this.dropdownArea * this.dip);
-    this.shadowWidth = (int) (this.shadowWidth * this.dip);
-    this.reflectionWidth = (int) (this.reflectionWidth * this.dip);
-    if (this.shadowWidth < 2) {
-      this.shadowWidth = 2;
+    private void drawRectShape(Canvas canvas) {
+        canvas.drawRect(new Rect(0, 0, this.w, this.topH), this.mPaint);
+        if (this.isNeedShadow) {
+            canvas.drawLines(getRectShadows(), this.mShadowPaint);
+        }
+        if (this.isNeedReflection) {
+            canvas.drawLines(getRectReflections(), this.mReflectionPaint);
+        }
     }
-    if (this.reflectionWidth < 2) {
-      this.reflectionWidth = 2;
+
+    private void drawRightAndBottom(Path path, int i, boolean z, int i2) {
+        path.lineTo((float) this.w, (float) (i - this.CornerInset));
+        path.lineTo((float) (this.w - this.CornerInset), (float) i);
+        if (z) {
+            path.lineTo((float) (this.NotchR2 + i2), (float) i);
+            path.lineTo((float) (this.NotchR1 + i2), (float) (this.NotchDepth + i));
+            path.lineTo((float) (this.NotchL2 + i2), (float) (this.NotchDepth + i));
+            path.lineTo((float) (this.NotchL1 + i2), (float) i);
+        }
+        if (i2 > 0) {
+            path.lineTo((float) (this.InnerCornerInset + i2), (float) i);
+            path.lineTo((float) i2, (float) (this.InnerCornerInset + i));
+            return;
+        }
+        path.lineTo((float) (this.CornerInset + i2), (float) i);
+        path.lineTo(0.0f, (float) (i - this.CornerInset));
     }
-    this.mPaint = new Paint();
-    if (!this.mIsArg) {
-      this.isNeedShadow = true;
-      this.isNeedReflection = true;
+
+    private void drawTop(Path path) {
+        path.moveTo(0.0f, (float) this.CornerInset);
+        path.lineTo((float) this.CornerInset, 0.0f);
+        path.lineTo((float) this.NotchL1, 0.0f);
+        path.lineTo((float) this.NotchL2, (float) this.NotchDepth);
+        path.lineTo((float) this.NotchR1, (float) this.NotchDepth);
+        path.lineTo((float) this.NotchR2, 0.0f);
+        path.lineTo((float) (this.w - this.CornerInset), 0.0f);
+        path.lineTo((float) this.w, (float) this.CornerInset);
     }
-    this.mDropdownPaint = new Paint();
-    this.mDropdownPaint.setColor(-536870912);
-    this.mDropdownPaint.setStrokeWidth(this.shadowWidth);
-    this.mShadowPaint = new Paint();
-    this.mShadowPaint.setColor(-1610612736);
-    this.mShadowPaint.setStyle(Paint.Style.STROKE);
-    this.mShadowPaint.setStrokeWidth(this.shadowWidth);
-    this.mReflectionPaint = new Paint();
-    this.mReflectionPaint.setColor(-1593835521);
-    this.mReflectionPaint.setStyle(Paint.Style.STROKE);
-    this.mReflectionPaint.setStrokeWidth(this.reflectionWidth);
-    setLayerType(1, null);
-    setWidthAndTopHeight(
-        this.defaultWidth, this.labelAndArgHeight + this.indentTop + this.indentBottom, false);
-  }
 
-  public void setWidthAndTopHeight(float newW, float newTopH, boolean isRedraw) {
-    if (this.mShapeType == 12) {
-      this.w = ((int) newW) + this.dropdownArea;
-    } else {
-      this.w = (int) newW;
+    private float[] getArmShadows(int i, int i2) {
+        return new float[]{(float) (this.SubstackInset + this.InnerCornerInset), (float) (i - (this.shadowWidth / 2)), (float) (this.SubstackInset - (this.shadowWidth / 2)), (float) (this.InnerCornerInset + i), (float) (this.SubstackInset - (this.shadowWidth / 2)), (float) (this.InnerCornerInset + i), (float) (this.SubstackInset - (this.shadowWidth / 2)), (float) (i2 - this.InnerCornerInset)};
     }
-    this.topH = (int) newTopH;
-    if (isRedraw) {
-      redraw();
+
+    private float[] getBooleanReflections() {
+        int i = this.topH / 2;
+        return new float[]{(float) ((this.shadowWidth / 2) + 0), (float) i, (float) i, (float) ((this.shadowWidth / 2) + 0), (float) i, (float) ((this.shadowWidth / 2) + 0), (float) (this.w - i), (float) ((this.shadowWidth / 2) + 0)};
     }
-  }
 
-  public int getTotalWidth() {
-    return this.w;
-  }
-
-  public int getTotalHeight() {
-    int height = this.topH;
-    if (canHaveSubstack1()) {
-      height += (this.DividerH + this.substack1H) - this.NotchDepth;
+    private float[] getBooleanShadows() {
+        int i = this.topH / 2;
+        return new float[]{(float) (this.w - (this.shadowWidth / 2)), (float) i, (float) (this.w - i), (float) (this.topH - (this.shadowWidth / 2)), (float) (this.w - i), (float) (this.topH - (this.shadowWidth / 2)), (float) i, (float) (this.topH - (this.shadowWidth / 2))};
     }
-    if (canHaveSubstack2()) {
-      height += (this.BottomBarH + this.substack2H) - this.NotchDepth;
+
+    private float[] getBottomShadows(int i, boolean z, int i2) {
+        float[] fArr = z ? new float[24] : new float[8];
+        fArr[0] = (float) this.w;
+        fArr[1] = (float) ((i - this.CornerInset) - (this.shadowWidth / 2));
+        fArr[2] = (float) (this.w - this.CornerInset);
+        fArr[3] = (float) (i - (this.shadowWidth / 2));
+        if (z) {
+            fArr[4] = (float) (this.w - this.CornerInset);
+            fArr[5] = (float) (i - (this.shadowWidth / 2));
+            fArr[6] = (float) (this.NotchR2 + i2);
+            fArr[7] = (float) (i - (this.shadowWidth / 2));
+            fArr[8] = (float) (this.NotchR2 + i2);
+            fArr[9] = (float) (i - (this.shadowWidth / 2));
+            fArr[10] = (float) (this.NotchR1 + i2);
+            fArr[11] = (float) ((this.NotchDepth + i) - (this.shadowWidth / 2));
+            fArr[12] = (float) (this.NotchR1 + i2);
+            fArr[13] = (float) ((this.NotchDepth + i) - (this.shadowWidth / 2));
+            fArr[14] = (float) (this.NotchL2 + i2);
+            fArr[15] = (float) ((this.NotchDepth + i) - (this.shadowWidth / 2));
+            fArr[16] = (float) (this.NotchL2 + i2);
+            fArr[17] = (float) ((this.NotchDepth + i) - (this.shadowWidth / 2));
+            fArr[18] = (float) (this.NotchL1 + i2);
+            fArr[19] = (float) (i - (this.shadowWidth / 2));
+            if (i2 > 0) {
+                fArr[20] = (float) (this.NotchL1 + i2);
+                fArr[21] = (float) (i - (this.shadowWidth / 2));
+                fArr[22] = (float) (this.InnerCornerInset + i2);
+                fArr[23] = (float) (i - (this.shadowWidth / 2));
+            } else {
+                fArr[20] = (float) (this.NotchL1 + i2);
+                fArr[21] = (float) (i - (this.shadowWidth / 2));
+                fArr[22] = (float) (this.CornerInset + i2);
+                fArr[23] = (float) (i - (this.shadowWidth / 2));
+            }
+        } else if (i2 > 0) {
+            fArr[4] = (float) (this.w - this.CornerInset);
+            fArr[5] = (float) (i - (this.shadowWidth / 2));
+            fArr[6] = (float) (this.InnerCornerInset + i2);
+            fArr[7] = (float) (i - (this.shadowWidth / 2));
+        } else {
+            fArr[4] = (float) (this.w - this.CornerInset);
+            fArr[5] = (float) (i - (this.shadowWidth / 2));
+            fArr[6] = (float) (this.CornerInset + i2);
+            fArr[7] = (float) (i - (this.shadowWidth / 2));
+        }
+        return fArr;
     }
-    if (this.mShapeType == 4
-        || this.mShapeType == 7
-        || this.mShapeType == 9
-        || this.mShapeType == 11) {
-      return height + this.NotchDepth;
+
+    private float[] getCommandReflections(int i) {
+        return new float[]{(float) ((this.shadowWidth / 2) + 0), (float) (i - this.CornerInset), (float) ((this.shadowWidth / 2) + 0), (float) this.CornerInset, (float) ((this.shadowWidth / 2) + 0), (float) this.CornerInset, (float) this.CornerInset, (float) ((this.shadowWidth / 2) + 0), (float) this.CornerInset, (float) ((this.shadowWidth / 2) + 0), (float) this.NotchL1, (float) ((this.shadowWidth / 2) + 0), (float) this.NotchL2, (float) (this.NotchDepth + (this.shadowWidth / 2)), (float) this.NotchR1, (float) (this.NotchDepth + (this.shadowWidth / 2)), (float) this.NotchR1, (float) (this.NotchDepth + (this.shadowWidth / 2)), (float) this.NotchR2, (float) ((this.shadowWidth / 2) + 0), (float) this.NotchR2, (float) ((this.shadowWidth / 2) + 0), (float) (this.w - this.CornerInset), (float) ((this.shadowWidth / 2) + 0)};
     }
-    return height;
-  }
 
-  public void setSubstack1Height(int h) {
-    int h2 = Math.max(h, this.EmptySubstackH);
-    if (h2 != this.substack1H) {
-      this.substack1H = h2;
+    private float[] getNumberBottomShadows() {
+        int i = this.topH / 2;
+        return new float[]{(float) (this.w - i), (float) (this.topH - (this.shadowWidth / 2)), (float) i, (float) (this.topH - (this.shadowWidth / 2))};
     }
-  }
 
-  public void setSubstack2Height(int h) {
-    int h2 = Math.max(h, this.EmptySubstackH);
-    if (h2 != this.substack2H) {
-      this.substack2H = h2;
+    private float[] getNumberTopReflections() {
+        int i = this.topH / 2;
+        return new float[]{(float) i, (float) ((this.shadowWidth / 2) + 0), (float) (this.w - i), (float) ((this.shadowWidth / 2) + 0)};
     }
-  }
 
-  public boolean canHaveSubstack1() {
-    return this.mShapeType >= 9;
-  }
-
-  public boolean canHaveSubstack2() {
-    return this.mShapeType == 11;
-  }
-
-  public int substack1y() {
-    return this.topH;
-  }
-
-  public int substack2y() {
-    return ((this.topH + this.substack1H) + this.DividerH) - this.NotchDepth;
-  }
-
-  public int nextBlockY() {
-    return getTotalHeight() - this.NotchDepth;
-  }
-
-  public void copyFeedbackShapeFrom(
-      BlockBase b, boolean reporterFlag, boolean isInsertion, int targetHeight) {
-    this.mColor = -16777216;
-    this.mShapeType = b.mShapeType;
-    this.w = b.w;
-    this.topH = b.topH;
-    this.substack1H = b.substack1H;
-    this.substack2H = b.substack2H;
-    if (!reporterFlag) {
-      if (isInsertion) {
-        this.mShapeType = 4;
-        this.topH = (int) (6.0f * this.dip);
-      } else if (targetHeight > 0) {
-        this.substack1H = targetHeight - this.NotchDepth;
-      }
+    private float[] getRectReflections() {
+        return new float[]{0.0f, (float) ((this.shadowWidth / 2) + 0), (float) (this.w - (this.shadowWidth / 2)), (float) ((this.shadowWidth / 2) + 0), (float) ((this.shadowWidth / 2) + 0), 0.0f, (float) ((this.shadowWidth / 2) + 0), (float) (this.topH - (this.shadowWidth / 2))};
     }
-    redraw();
-  }
 
-  @Override // android.widget.RelativeLayout, android.view.View
-  protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-    int width = View.MeasureSpec.makeMeasureSpec(getTotalWidth(), 1073741824);
-    int height = View.MeasureSpec.makeMeasureSpec(getTotalHeight(), 1073741824);
-    super.onMeasure(width, height);
-  }
-
-  public void redraw() {
-    requestLayout();
-  }
-
-  @Override // android.view.View
-  protected void onDraw(Canvas canvas) {
-    this.mPaint.setColor(this.mColor);
-    switch (this.mShapeType) {
-      case RectShape /* 1 */:
-        drawRectShape(canvas);
-        break;
-      case BooleanShape /* 2 */:
-        drawBooleanShape(canvas);
-        break;
-      case NumberShape /* 3 */:
-        drawNumberShape(canvas);
-        break;
-      case CmdShape /* 4 */:
-      case FinalCmdShape /* 5 */:
-        drawCmdShape(canvas);
-        break;
-      case HatShape /* 7 */:
-        drawHatShape(canvas);
-        break;
-      case LoopShape /* 9 */:
-      case FinalLoopShape /* 10 */:
-        drawLoopShape(canvas);
-        break;
-      case IfElseShape /* 11 */:
-        drawIfElseShape(canvas);
-        break;
-      case DropdownShape /* 12 */:
-        drawDropdownShape(canvas);
-        break;
+    private float[] getRectShadows() {
+        return new float[]{(float) (this.w - (this.shadowWidth / 2)), 0.0f, (float) (this.w - (this.shadowWidth / 2)), (float) (this.topH - (this.shadowWidth / 2)), (float) (this.w - (this.shadowWidth / 2)), (float) (this.topH - (this.shadowWidth / 2)), 0.0f, (float) (this.topH - (this.shadowWidth / 2))};
     }
-    super.onDraw(canvas);
-  }
 
-  private void drawRectShape(Canvas canvas) {
-    canvas.drawRect(new Rect(0, 0, this.w, this.topH), this.mPaint);
-    if (this.isNeedShadow) {
-      canvas.drawLines(getRectShadows(), this.mShadowPaint);
+    private float[] getRightShadows(int i, int i2) {
+        return new float[]{(float) (this.w - (this.shadowWidth / 2)), (float) (this.CornerInset + i), (float) (this.w - (this.shadowWidth / 2)), (float) (i2 - this.CornerInset)};
     }
-    if (this.isNeedReflection) {
-      canvas.drawLines(getRectReflections(), this.mReflectionPaint);
+
+    private float[] getTopReflections(int i, int i2) {
+        return new float[]{(float) (this.InnerCornerInset + i2), (float) ((this.shadowWidth / 2) + i), (float) (this.w - this.CornerInset), (float) ((this.shadowWidth / 2) + i)};
     }
-  }
 
-  private void drawDropdownShape(Canvas canvas) {
-    canvas.drawRect(new Rect(0, 0, this.w, this.topH), this.mPaint);
-    Path p = new Path();
-    p.moveTo(this.w - this.dropdownIndent, this.dropdownIndent);
-    p.lineTo(
-        (this.w - this.dropdownIndent) - (this.dropdownWidth / 2),
-        this.dropdownIndent + this.dropdownWidth);
-    p.lineTo((this.w - this.dropdownIndent) - this.dropdownWidth, this.dropdownIndent);
-    canvas.drawPath(p, this.mDropdownPaint);
-  }
-
-  private void drawBooleanShape(Canvas canvas) {
-    Path p = new Path();
-    int centerY = this.topH / 2;
-    p.moveTo(centerY, this.topH);
-    p.lineTo(0.0f, centerY);
-    p.lineTo(centerY, 0.0f);
-    p.lineTo(this.w - centerY, 0.0f);
-    p.lineTo(this.w, centerY);
-    p.lineTo(this.w - centerY, this.topH);
-    canvas.drawPath(p, this.mPaint);
-    if (this.isNeedShadow) {
-      canvas.drawLines(getBooleanShadows(), this.mShadowPaint);
+    private void init(Context context) {
+        this.dip = LayoutUtil.getDip(context, 1.0f);
+        this.NotchDepth = (int) (((float) this.NotchDepth) * this.dip);
+        this.EmptySubstackH = (int) (((float) this.EmptySubstackH) * this.dip);
+        this.SubstackInset = (int) (((float) this.SubstackInset) * this.dip);
+        this.BottomBarH = (int) (((float) this.BottomBarH) * this.dip);
+        this.DividerH = (int) (((float) this.DividerH) * this.dip);
+        this.CornerInset = (int) (((float) this.CornerInset) * this.dip);
+        this.InnerCornerInset = (int) (((float) this.InnerCornerInset) * this.dip);
+        this.NotchL1 = (int) (((float) this.NotchL1) * this.dip);
+        this.NotchL2 = (int) (((float) this.NotchL2) * this.dip);
+        this.NotchR1 = (int) (((float) this.NotchR1) * this.dip);
+        this.NotchR2 = (int) (((float) this.NotchR2) * this.dip);
+        this.hatHeight = (int) (((float) this.hatHeight) * this.dip);
+        this.hatWidth = (int) (((float) this.hatWidth) * this.dip);
+        this.substack1H = (int) (((float) this.substack1H) * this.dip);
+        this.substack2H = (int) (((float) this.substack2H) * this.dip);
+        this.indentLeft = (int) (((float) this.indentLeft) * this.dip);
+        this.indentTop = (int) (((float) this.indentTop) * this.dip);
+        this.indentRight = (int) (((float) this.indentRight) * this.dip);
+        this.indentBottom = (int) (((float) this.indentBottom) * this.dip);
+        this.childInset = (int) (((float) this.childInset) * this.dip);
+        this.defaultWidth = (int) (((float) this.defaultWidth) * this.dip);
+        this.labelAndArgHeight = (int) (((float) this.labelAndArgHeight) * this.dip);
+        this.dropdownWidth = (int) (((float) this.dropdownWidth) * this.dip);
+        this.dropdownIndent = (int) (((float) this.dropdownIndent) * this.dip);
+        this.dropdownArea = (int) (((float) this.dropdownArea) * this.dip);
+        this.shadowWidth = (int) (((float) this.shadowWidth) * this.dip);
+        this.reflectionWidth = (int) (((float) this.reflectionWidth) * this.dip);
+        if (this.shadowWidth < 2) {
+            this.shadowWidth = 2;
+        }
+        if (this.reflectionWidth < 2) {
+            this.reflectionWidth = 2;
+        }
+        this.mPaint = new Paint();
+        if (!this.mIsArg) {
+            this.isNeedShadow = true;
+            this.isNeedReflection = true;
+        }
+        this.mDropdownPaint = new Paint();
+        this.mDropdownPaint.setColor(-536870912);
+        this.mDropdownPaint.setStrokeWidth((float) this.shadowWidth);
+        this.mShadowPaint = new Paint();
+        this.mShadowPaint.setColor(-1610612736);
+        this.mShadowPaint.setStyle(Paint.Style.STROKE);
+        this.mShadowPaint.setStrokeWidth((float) this.shadowWidth);
+        this.mReflectionPaint = new Paint();
+        this.mReflectionPaint.setColor(-1593835521);
+        this.mReflectionPaint.setStyle(Paint.Style.STROKE);
+        this.mReflectionPaint.setStrokeWidth((float) this.reflectionWidth);
+        setLayerType(1, (Paint) null);
+        setWidthAndTopHeight((float) this.defaultWidth, (float) (this.labelAndArgHeight + this.indentTop + this.indentBottom), false);
     }
-    if (this.isNeedReflection) {
-      canvas.drawLines(getBooleanReflections(), this.mReflectionPaint);
+
+    public boolean canHaveSubstack1() {
+        return this.mShapeType >= 9;
     }
-  }
 
-  private void drawNumberShape(Canvas canvas) {
-    Path p = new Path();
-    int centerY = this.topH / 2;
-    p.moveTo(centerY, this.topH);
-    p.arcTo(new RectF(0.0f, 0.0f, this.topH, this.topH), 90.0f, 180.0f);
-    p.lineTo(this.w - centerY, 0.0f);
-    p.arcTo(new RectF(this.w - this.topH, 0.0f, this.w, this.topH), 270.0f, 180.0f);
-    canvas.drawPath(p, this.mPaint);
-    if (this.isNeedShadow) {
-      canvas.drawArc(
-          new RectF(
-              this.w - this.topH,
-              0.0f,
-              this.w - (this.shadowWidth / 2),
-              this.topH - (this.shadowWidth / 2)),
-          330.0f,
-          120.0f,
-          false,
-          this.mShadowPaint);
-      canvas.drawLines(getNumberBottomShadows(), this.mShadowPaint);
-      canvas.drawArc(
-          new RectF(
-              (this.shadowWidth / 2) + 0, 0.0f, this.topH, this.topH - (this.shadowWidth / 2)),
-          90.0f,
-          30.0f,
-          false,
-          this.mShadowPaint);
+    public boolean canHaveSubstack2() {
+        return this.mShapeType == 11;
     }
-    if (this.isNeedReflection) {
-      canvas.drawArc(
-          new RectF((this.shadowWidth / 2) + 0, (this.shadowWidth / 2) + 0, this.topH, this.topH),
-          150.0f,
-          120.0f,
-          false,
-          this.mReflectionPaint);
-      canvas.drawLines(getNumberTopReflections(), this.mReflectionPaint);
-      canvas.drawArc(
-          new RectF(
-              this.w - this.topH,
-              (this.shadowWidth / 2) + 0,
-              this.w - (this.shadowWidth / 2),
-              this.topH),
-          270.0f,
-          30.0f,
-          false,
-          this.mReflectionPaint);
+
+    public void copyFeedbackShapeFrom(BlockBase blockBase, boolean z, boolean z2, int i) {
+        this.mColor = -16777216;
+        this.mShapeType = blockBase.mShapeType;
+        this.w = blockBase.w;
+        this.topH = blockBase.topH;
+        this.substack1H = blockBase.substack1H;
+        this.substack2H = blockBase.substack2H;
+        if (!z) {
+            if (z2) {
+                this.mShapeType = 4;
+                this.topH = (int) (6.0f * this.dip);
+            } else if (i > 0) {
+                this.substack1H = i - this.NotchDepth;
+            }
+        }
+        redraw();
     }
-  }
 
-  private void drawCmdShape(Canvas canvas) {
-    Path p = new Path();
-    drawTop(p);
-    drawRightAndBottom(p, this.topH, this.mShapeType != 5, 0);
-    canvas.drawPath(p, this.mPaint);
-    if (this.isNeedShadow) {
-      canvas.drawLines(getRightShadows(0, this.topH), this.mShadowPaint);
-      canvas.drawLines(getBottomShadows(this.topH, this.mShapeType != 5, 0), this.mShadowPaint);
+    public int getTopH() {
+        return this.topH;
     }
-    if (this.isNeedReflection) {
-      canvas.drawLines(getCommandReflections(this.topH), this.mReflectionPaint);
+
+    public int getTotalHeight() {
+        int i = this.topH;
+        if (canHaveSubstack1()) {
+            i += (this.DividerH + this.substack1H) - this.NotchDepth;
+        }
+        if (canHaveSubstack2()) {
+            i += (this.BottomBarH + this.substack2H) - this.NotchDepth;
+        }
+        return (this.mShapeType == 4 || this.mShapeType == 7 || this.mShapeType == 9 || this.mShapeType == 11) ? i + this.NotchDepth : i;
     }
-  }
 
-  private void drawHatShape(Canvas canvas) {
-    Path p = new Path();
-    p.moveTo(0.0f, this.hatHeight);
-    p.arcTo(new RectF(0.0f, 0.0f, this.hatWidth, this.hatHeight * 2), 180.0f, 180.0f);
-    p.lineTo(this.w - this.CornerInset, this.hatHeight);
-    p.lineTo(this.w, this.hatHeight + this.CornerInset);
-    drawRightAndBottom(p, this.topH, true, 0);
-    canvas.drawPath(p, this.mPaint);
-    if (this.isNeedShadow) {
-      canvas.drawLines(getRightShadows(this.hatHeight, this.topH), this.mShadowPaint);
-      canvas.drawLines(getBottomShadows(this.topH, true, 0), this.mShadowPaint);
+    public int getTotalWidth() {
+        return this.w;
     }
-  }
 
-  private void drawLoopShape(Canvas canvas) {
-    Path p = new Path();
-    int h1 = (this.topH + this.substack1H) - this.NotchDepth;
-    drawTop(p);
-    drawRightAndBottom(p, this.topH, true, this.SubstackInset);
-    drawArm(p, h1);
-    drawRightAndBottom(p, h1 + this.BottomBarH, this.mShapeType == 9, 0);
-    canvas.drawPath(p, this.mPaint);
-    if (this.isNeedShadow) {
-      canvas.drawLines(getRightShadows(0, this.topH), this.mShadowPaint);
-      canvas.drawLines(getBottomShadows(this.topH, true, this.SubstackInset), this.mShadowPaint);
-      canvas.drawLines(getArmShadows(this.topH, h1), this.mShadowPaint);
-      canvas.drawLines(getRightShadows(h1, this.BottomBarH + h1), this.mShadowPaint);
-      canvas.drawLines(
-          getBottomShadows(this.BottomBarH + h1, this.mShapeType == 9, 0), this.mShadowPaint);
+    public int getW() {
+        return this.w;
     }
-    if (this.isNeedReflection) {
-      canvas.drawLines(getCommandReflections(this.BottomBarH + h1), this.mReflectionPaint);
-      canvas.drawLines(getTopReflections(h1, this.SubstackInset), this.mReflectionPaint);
+
+    public int nextBlockY() {
+        return getTotalHeight() - this.NotchDepth;
     }
-  }
 
-  private void drawIfElseShape(Canvas canvas) {
-    Path p = new Path();
-    int h1 = (this.topH + this.substack1H) - this.NotchDepth;
-    int h2 = ((this.DividerH + h1) + this.substack2H) - this.NotchDepth;
-    drawTop(p);
-    drawRightAndBottom(p, this.topH, true, this.SubstackInset);
-    drawArm(p, h1);
-    drawRightAndBottom(p, this.DividerH + h1, true, this.SubstackInset);
-    drawArm(p, h2);
-    drawRightAndBottom(p, this.BottomBarH + h2, true, 0);
-    canvas.drawPath(p, this.mPaint);
-    if (this.isNeedShadow) {
-      canvas.drawLines(getRightShadows(0, this.topH), this.mShadowPaint);
-      canvas.drawLines(getBottomShadows(this.topH, true, this.SubstackInset), this.mShadowPaint);
-      canvas.drawLines(getArmShadows(this.topH, h1), this.mShadowPaint);
-      canvas.drawLines(getRightShadows(h1, this.DividerH + h1), this.mShadowPaint);
-      canvas.drawLines(
-          getBottomShadows(this.DividerH + h1, true, this.SubstackInset), this.mShadowPaint);
-      canvas.drawLines(getArmShadows(this.DividerH + h1, h2), this.mShadowPaint);
-      canvas.drawLines(getRightShadows(h2, this.BottomBarH + h2), this.mShadowPaint);
-      canvas.drawLines(getBottomShadows(this.BottomBarH + h2, true, 0), this.mShadowPaint);
+    /* access modifiers changed from: protected */
+    public void onDraw(Canvas canvas) {
+        this.mPaint.setColor(this.mColor);
+        switch (this.mShapeType) {
+            case 1:
+                drawRectShape(canvas);
+                break;
+            case 2:
+                drawBooleanShape(canvas);
+                break;
+            case 3:
+                drawNumberShape(canvas);
+                break;
+            case 4:
+            case 5:
+                drawCmdShape(canvas);
+                break;
+            case HatShape /*7*/:
+                drawHatShape(canvas);
+                break;
+            case LoopShape /*9*/:
+            case FinalLoopShape /*10*/:
+                drawLoopShape(canvas);
+                break;
+            case IfElseShape /*11*/:
+                drawIfElseShape(canvas);
+                break;
+            case DropdownShape /*12*/:
+                drawDropdownShape(canvas);
+                break;
+        }
+        super.onDraw(canvas);
     }
-    if (this.isNeedReflection) {
-      canvas.drawLines(getCommandReflections(this.BottomBarH + h2), this.mReflectionPaint);
-      canvas.drawLines(getTopReflections(h1, this.SubstackInset), this.mReflectionPaint);
-      canvas.drawLines(getTopReflections(h2, this.SubstackInset), this.mReflectionPaint);
+
+    /* access modifiers changed from: protected */
+    public void onMeasure(int i, int i2) {
+        super.onMeasure(View.MeasureSpec.makeMeasureSpec(getTotalWidth(), 1073741824), View.MeasureSpec.makeMeasureSpec(getTotalHeight(), 1073741824));
     }
-  }
 
-  private void drawTop(Path p) {
-    p.moveTo(0.0f, this.CornerInset);
-    p.lineTo(this.CornerInset, 0.0f);
-    p.lineTo(this.NotchL1, 0.0f);
-    p.lineTo(this.NotchL2, this.NotchDepth);
-    p.lineTo(this.NotchR1, this.NotchDepth);
-    p.lineTo(this.NotchR2, 0.0f);
-    p.lineTo(this.w - this.CornerInset, 0.0f);
-    p.lineTo(this.w, this.CornerInset);
-  }
-
-  private void drawRightAndBottom(Path p, int bottomY, boolean hasNotch, int inset) {
-    p.lineTo(this.w, bottomY - this.CornerInset);
-    p.lineTo(this.w - this.CornerInset, bottomY);
-    if (hasNotch) {
-      p.lineTo(this.NotchR2 + inset, bottomY);
-      p.lineTo(this.NotchR1 + inset, this.NotchDepth + bottomY);
-      p.lineTo(this.NotchL2 + inset, this.NotchDepth + bottomY);
-      p.lineTo(this.NotchL1 + inset, bottomY);
+    public void redraw() {
+        requestLayout();
     }
-    if (inset > 0) {
-      p.lineTo(this.InnerCornerInset + inset, bottomY);
-      p.lineTo(inset, this.InnerCornerInset + bottomY);
-      return;
+
+    public void setSubstack1Height(int i) {
+        int max = Math.max(i, this.EmptySubstackH);
+        if (max != this.substack1H) {
+            this.substack1H = max;
+        }
     }
-    p.lineTo(this.CornerInset + inset, bottomY);
-    p.lineTo(0.0f, bottomY - this.CornerInset);
-  }
 
-  private void drawArm(Path p, int armTop) {
-    p.lineTo(this.SubstackInset, armTop - this.InnerCornerInset);
-    p.lineTo(this.SubstackInset + this.InnerCornerInset, armTop);
-    p.lineTo(this.w - this.CornerInset, armTop);
-    p.lineTo(this.w, this.CornerInset + armTop);
-  }
-
-  public int getW() {
-    return this.w;
-  }
-
-  public int getTopH() {
-    return this.topH;
-  }
-
-  private float[] getArmShadows(int top, int bottom) {
-    float[] result = {
-      this.SubstackInset + this.InnerCornerInset,
-      top - (this.shadowWidth / 2),
-      this.SubstackInset - (this.shadowWidth / 2),
-      this.InnerCornerInset + top,
-      this.SubstackInset - (this.shadowWidth / 2),
-      this.InnerCornerInset + top,
-      this.SubstackInset - (this.shadowWidth / 2),
-      bottom - this.InnerCornerInset
-    };
-    return result;
-  }
-
-  private float[] getRightShadows(int top, int height) {
-    float[] result = {
-      this.w - (this.shadowWidth / 2),
-      this.CornerInset + top,
-      this.w - (this.shadowWidth / 2),
-      height - this.CornerInset
-    };
-    return result;
-  }
-
-  private float[] getRectShadows() {
-    float[] result = {
-      this.w - (this.shadowWidth / 2),
-      0.0f,
-      this.w - (this.shadowWidth / 2),
-      this.topH - (this.shadowWidth / 2),
-      this.w - (this.shadowWidth / 2),
-      this.topH - (this.shadowWidth / 2),
-      0.0f,
-      this.topH - (this.shadowWidth / 2)
-    };
-    return result;
-  }
-
-  private float[] getRectReflections() {
-    float[] result = {
-      0.0f,
-      (this.shadowWidth / 2) + 0,
-      this.w - (this.shadowWidth / 2),
-      (this.shadowWidth / 2) + 0,
-      (this.shadowWidth / 2) + 0,
-      0.0f,
-      (this.shadowWidth / 2) + 0,
-      this.topH - (this.shadowWidth / 2)
-    };
-    return result;
-  }
-
-  private float[] getBooleanShadows() {
-    int centerY = this.topH / 2;
-    float[] result = {
-      this.w - (this.shadowWidth / 2),
-      centerY,
-      this.w - centerY,
-      this.topH - (this.shadowWidth / 2),
-      this.w - centerY,
-      this.topH - (this.shadowWidth / 2),
-      centerY,
-      this.topH - (this.shadowWidth / 2)
-    };
-    return result;
-  }
-
-  private float[] getBooleanReflections() {
-    int centerY = this.topH / 2;
-    float[] result = {
-      (this.shadowWidth / 2) + 0,
-      centerY,
-      centerY,
-      (this.shadowWidth / 2) + 0,
-      centerY,
-      (this.shadowWidth / 2) + 0,
-      this.w - centerY,
-      (this.shadowWidth / 2) + 0
-    };
-    return result;
-  }
-
-  private float[] getNumberBottomShadows() {
-    int centerY = this.topH / 2;
-    float[] result = {
-      this.w - centerY,
-      this.topH - (this.shadowWidth / 2),
-      centerY,
-      this.topH - (this.shadowWidth / 2)
-    };
-    return result;
-  }
-
-  private float[] getNumberTopReflections() {
-    int centerY = this.topH / 2;
-    float[] result = {
-      centerY, (this.shadowWidth / 2) + 0, this.w - centerY, (this.shadowWidth / 2) + 0
-    };
-    return result;
-  }
-
-  private float[] getCommandReflections(int height) {
-    float[] result = {
-      (this.shadowWidth / 2) + 0,
-      height - this.CornerInset,
-      (this.shadowWidth / 2) + 0,
-      this.CornerInset,
-      (this.shadowWidth / 2) + 0,
-      this.CornerInset,
-      this.CornerInset,
-      (this.shadowWidth / 2) + 0,
-      this.CornerInset,
-      (this.shadowWidth / 2) + 0,
-      this.NotchL1,
-      (this.shadowWidth / 2) + 0,
-      this.NotchL2,
-      this.NotchDepth + (this.shadowWidth / 2),
-      this.NotchR1,
-      this.NotchDepth + (this.shadowWidth / 2),
-      this.NotchR1,
-      this.NotchDepth + (this.shadowWidth / 2),
-      this.NotchR2,
-      (this.shadowWidth / 2) + 0,
-      this.NotchR2,
-      (this.shadowWidth / 2) + 0,
-      this.w - this.CornerInset,
-      (this.shadowWidth / 2) + 0
-    };
-    return result;
-  }
-
-  private float[] getTopReflections(int posY, int inset) {
-    float[] result = {
-      this.InnerCornerInset + inset,
-      (this.shadowWidth / 2) + posY,
-      this.w - this.CornerInset,
-      (this.shadowWidth / 2) + posY
-    };
-    return result;
-  }
-
-  private float[] getBottomShadows(int bottomY, boolean hasNotch, int inset) {
-    float[] result;
-    if (hasNotch) {
-      result = new float[24];
-    } else {
-      result = new float[8];
+    public void setSubstack2Height(int i) {
+        int max = Math.max(i, this.EmptySubstackH);
+        if (max != this.substack2H) {
+            this.substack2H = max;
+        }
     }
-    result[0] = this.w;
-    result[1] = (bottomY - this.CornerInset) - (this.shadowWidth / 2);
-    result[2] = this.w - this.CornerInset;
-    result[3] = bottomY - (this.shadowWidth / 2);
-    if (hasNotch) {
-      result[4] = this.w - this.CornerInset;
-      result[5] = bottomY - (this.shadowWidth / 2);
-      result[6] = this.NotchR2 + inset;
-      result[7] = bottomY - (this.shadowWidth / 2);
-      result[8] = this.NotchR2 + inset;
-      result[9] = bottomY - (this.shadowWidth / 2);
-      result[10] = this.NotchR1 + inset;
-      result[11] = (this.NotchDepth + bottomY) - (this.shadowWidth / 2);
-      result[12] = this.NotchR1 + inset;
-      result[13] = (this.NotchDepth + bottomY) - (this.shadowWidth / 2);
-      result[14] = this.NotchL2 + inset;
-      result[15] = (this.NotchDepth + bottomY) - (this.shadowWidth / 2);
-      result[16] = this.NotchL2 + inset;
-      result[17] = (this.NotchDepth + bottomY) - (this.shadowWidth / 2);
-      result[18] = this.NotchL1 + inset;
-      result[19] = bottomY - (this.shadowWidth / 2);
-      if (inset > 0) {
-        result[20] = this.NotchL1 + inset;
-        result[21] = bottomY - (this.shadowWidth / 2);
-        result[22] = this.InnerCornerInset + inset;
-        result[23] = bottomY - (this.shadowWidth / 2);
-      } else {
-        result[20] = this.NotchL1 + inset;
-        result[21] = bottomY - (this.shadowWidth / 2);
-        result[22] = this.CornerInset + inset;
-        result[23] = bottomY - (this.shadowWidth / 2);
-      }
-    } else if (inset > 0) {
-      result[4] = this.w - this.CornerInset;
-      result[5] = bottomY - (this.shadowWidth / 2);
-      result[6] = this.InnerCornerInset + inset;
-      result[7] = bottomY - (this.shadowWidth / 2);
-    } else {
-      result[4] = this.w - this.CornerInset;
-      result[5] = bottomY - (this.shadowWidth / 2);
-      result[6] = this.CornerInset + inset;
-      result[7] = bottomY - (this.shadowWidth / 2);
+
+    public void setWidthAndTopHeight(float f, float f2, boolean z) {
+        if (this.mShapeType == 12) {
+            this.w = ((int) f) + this.dropdownArea;
+        } else {
+            this.w = (int) f;
+        }
+        this.topH = (int) f2;
+        if (z) {
+            redraw();
+        }
     }
-    return result;
-  }
+
+    public int substack1y() {
+        return this.topH;
+    }
+
+    public int substack2y() {
+        return ((this.topH + this.substack1H) + this.DividerH) - this.NotchDepth;
+    }
 }
