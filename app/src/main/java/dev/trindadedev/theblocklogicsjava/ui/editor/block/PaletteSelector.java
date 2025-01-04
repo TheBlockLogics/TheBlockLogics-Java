@@ -21,7 +21,7 @@ public class PaletteSelector extends LinearLayout implements View.OnClickListene
     super(context, attributeSet);
     init(context);
   }
-  
+
   private void init(final Context context) {
     this.context = context;
     setOrientation(1);
@@ -41,7 +41,7 @@ public class PaletteSelector extends LinearLayout implements View.OnClickListene
     addCategoryItem(5, getStr(R.string.block_category_file), 0xffa1887f);
     addCategoryItem(6, getStr(R.string.block_category_view_func), 0xff4a6cd4);
   }
-  
+
   private final String getStr(final int resId) {
     return getResources().getString(resId);
   }
