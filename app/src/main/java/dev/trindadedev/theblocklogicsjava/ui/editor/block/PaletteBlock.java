@@ -2,78 +2,87 @@ package dev.trindadedev.theblocklogicsjava.ui.editor.block;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.besome.sketch.lib.ui.CustomHorizontalScrollView;
 import com.besome.sketch.lib.ui.CustomScrollView;
 import dev.trindadedev.theblocklogicsjava.utils.LayoutUtil;
+import dev.trindadedev.theblocklogicsjava.databinding.PaletteBlockBinding;
+import com.google.android.material.card.MaterialCardView;
 
 public class PaletteBlock extends LinearLayout {
-    LinearLayout blockBuilder;
-    private float dip = 0.0f;
-    CustomHorizontalScrollView hscv;
-    private Context mContext;
-    CustomScrollView scv;
 
-    public PaletteBlock(Context context) {
-        super(context);
-        init(context);
-    }
+  private PaletteBlockBinding binding;
 
-    public PaletteBlock(Context context, AttributeSet attributeSet) {
-        super(context, attributeSet);
-        init(context);
-    }
+  private float dip = 0.0f;
+  private Context mContext;
 
-    private void init(Context context) {
-        this.mContext = context;
-        LayoutUtil.inflate(context, this, 2130968709);
-        this.scv = findViewById(2131689876);
-        this.hscv = findViewById(2131689877);
-        this.blockBuilder = (LinearLayout) findViewById(2131689878);
-        this.dip = LayoutUtil.getDip(this.mContext, 1.0f);
-    }
+  public PaletteBlock(Context context) {
+    super(context);
+    init(context);
+  }
 
-    public BlockBase addBlock(String str, String str2, String str3, int i, Object... objArr) {
-        View view = new View(this.mContext);
-        view.setLayoutParams(new LinearLayout.LayoutParams(-1, (int) (8.0f * this.dip)));
-        this.blockBuilder.addView(view);
-        Block block = new Block(this.mContext, -1, str, str2, str3, Integer.valueOf(i), objArr);
-        block.setBlockType(1);
-        this.blockBuilder.addView(block);
-        return block;
-    }
+  public PaletteBlock(Context context, AttributeSet attributeSet) {
+    super(context, attributeSet);
+    init(context);
+  }
 
-    public TextView addButton(String str) {
-        TextView textView = new TextView(this.mContext);
-        textView.setLayoutParams(new LinearLayout.LayoutParams(-1, (int) (30.0f * this.dip)));
-        textView.setBackgroundResource(2130837603);
-        textView.setText(str);
-        textView.setTextSize(10.0f);
-        textView.setGravity(17);
-        textView.setPadding((int) (this.dip * 8.0f), 0, (int) (this.dip * 8.0f), 0);
-        this.blockBuilder.addView(textView);
-        return textView;
-    }
+  private void init(Context context) {
+    binding = PaletteBlockBinding.inflate(LayoutInflater.from(context), this, true);
+    this.mContext = context;
+    this.dip = LayoutUtil.getDip(this.mContext, 1.0f);
+  }
 
-    public void removeAllBlocks() {
-        this.blockBuilder.removeAllViews();
-    }
+  public BlockBase addBlock(String str, String str2, String str3, int i, Object... objArr) {
+    var view = new View(this.mContext);
+    view.setLayoutParams(new LinearLayout.LayoutParams(-1, (int) (8.0f * this.dip)));
+    binding.blockBuilder.addView(view);
+    var block = new Block(this.mContext, -1, str, str2, str3, Integer.valueOf(i), objArr);
+    block.setBlockType(1);
+    binding.blockBuilder.addView(block);
+    return block;
+  }
 
-    public void setDragEnabled(boolean z) {
-        if (z) {
-            this.scv.setScrollEnabled();
-            this.hscv.setScrollEnabled();
-            return;
-        }
-        this.scv.setScrollDisabled();
-        this.hscv.setScrollDisabled();
-    }
+  public TextView addButton(final String title) {
+    var textView = new TextView(getContext());
+    textView.setText(title);
+    textView.setTextSize(10.0F);
+    textView.setGravity(Gravity.CENTER);
+    textView.setPadding((int) (dip * 8.0F), 0, (int) (dip * 8.0F), 0);
 
-    public void setMinWidth(int i) {
-        this.scv.setMinimumWidth(i - ((int) (this.dip * 5.0f)));
-        this.hscv.setMinimumWidth(i - ((int) (this.dip * 5.0f)));
-        getLayoutParams().width = i;
+    var cardView = new MaterialCardView(getContext());
+    var params = getLayoutParams(30.0F);
+    params.setMargins(0, 0, 3, 3);
+    cardView.setLayoutParams(params);
+
+    cardView.setCardElevation(0f);
+    cardView.setRadius(12.0f);
+    cardView.setStrokeWidth(0);
+    cardView.addView(textView);
+    binding.actionsContainer.addView(cardView);
+    return textView;
+  }
+
+  public void removeAllBlocks() {
+    binding.blockBuilder.removeAllViews();
+  }
+
+  public void setDragEnabled(boolean dragEnabled) {
+    if (dragEnabled) {
+      binding.scroll.setScrollEnabled();
+      binding.scrollHorizontal.setScrollEnabled();
+      return;
     }
+    binding.scroll.setScrollDisabled();
+    binding.scrollHorizontal.setScrollDisabled();
+  }
+
+  public void setMinWidth(int i) {
+    binding.scroll.setMinimumWidth(i - ((int) (this.dip * 5.0f)));
+    binding.scrollHorizontal.setMinimumWidth(i - ((int) (this.dip * 5.0f)));
+    getLayoutParams().width = i;
+  }
 }
