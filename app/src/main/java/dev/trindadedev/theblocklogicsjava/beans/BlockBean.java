@@ -38,7 +38,11 @@ public class BlockBean implements Parcelable {
   public BlockBean(final Parcel parcel) {
     type = parcel.readInt();
     color = parcel.readInt();
+    subStack1 = parcel.readInt();
+    subStack2 = parcel.readInt();
     id = parcel.readString();
+    spec = parcel.readString();
+    opCode = parcel.readString();
     parameters = (ArrayList) parcel.readSerializable();
     parametersTypes = (ArrayList) parcel.readSerializable();
   }
@@ -47,7 +51,11 @@ public class BlockBean implements Parcelable {
   public void writeToParcel(final Parcel parcel, final int arg1) {
     parcel.writeInt(type);
     parcel.writeInt(color);
+    parcel.writeInt(subStack1);
+    parcel.writeInt(subStack2);
     parcel.writeString(id);
+    parcel.writeString(spec);
+    parcel.writeString(opCode);
     parcel.writeSerializable(parameters);
     parcel.writeSerializable(parametersTypes);
   }
