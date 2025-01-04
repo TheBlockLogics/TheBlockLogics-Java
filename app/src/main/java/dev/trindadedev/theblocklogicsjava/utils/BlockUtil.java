@@ -1,6 +1,8 @@
 package dev.trindadedev.theblocklogicsjava.utils;
 
-// decompile from Sketchware 1.1.13
+/**
+ * Decompiled from Sketchware 1.1.13
+ */
 
 public class BlockUtil {
   public static final int BLOCK_COLOR_ALL = -16740914;

@@ -1,7 +1,8 @@
-//
-// Decompiled by Jadx-1.4.7 (from NP Manager)
-//
 package com.besome.sketch.editor.logic.block;
+
+/**
+ * Decompiled from Sketchware 1.1.13
+ */
 
 import android.content.Context;
 import android.graphics.Point;

@@ -1,6 +1,8 @@
 package dev.trindadedev.theblocklogicsjava.utils;
 
-// decompile from Sketchware 1.1.13
+/**
+ * Decompiled from Sketchware 1.1.13
+ */
 
 import android.content.Context;
 import android.util.TypedValue;
