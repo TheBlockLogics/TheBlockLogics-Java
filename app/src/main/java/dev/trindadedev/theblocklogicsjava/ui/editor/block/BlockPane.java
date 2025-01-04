@@ -12,631 +12,639 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class BlockPane extends RelativeLayout {
-  public static final int INSERT_ABOVE = 1;
-  public static final int INSERT_NORMAL = 0;
-  public static final int INSERT_PARAM = 5;
-  public static final int INSERT_SUB1 = 2;
-  public static final int INSERT_SUB2 = 3;
-  public static final int INSERT_WRAP = 4;
-  public int blockId;
-  private BlockBase feedbackShape;
-  private Block hitTarget;
-  private Context mContext;
-  private int maxDepth;
-  private Object[] nearestTarget;
-  private int[] posArea;
-  private ArrayList<Object[]> possibleTargets;
-  private Block root;
+    public static final int INSERT_ABOVE = 1;
+    public static final int INSERT_NORMAL = 0;
+    public static final int INSERT_PARAM = 5;
+    public static final int INSERT_SUB1 = 2;
+    public static final int INSERT_SUB2 = 3;
+    public static final int INSERT_WRAP = 4;
+    public int blockId;
+    private BlockBase feedbackShape;
+    private Block hitTarget;
+    private Context mContext;
+    private int maxDepth;
+    private Object[] nearestTarget;
+    private int[] posArea;
+    private ArrayList<Object[]> possibleTargets;
+    private Block root;
 
-  public BlockPane(Context context) {
-    super(context);
-    this.posArea = new int[2];
-    this.possibleTargets = new ArrayList<>();
-    this.nearestTarget = null;
-    this.blockId = 10;
-    this.hitTarget = null;
-    this.maxDepth = -1;
-    init(context);
-  }
-
-  public BlockPane(Context context, AttributeSet attrs) {
-    super(context, attrs);
-    this.posArea = new int[2];
-    this.possibleTargets = new ArrayList<>();
-    this.nearestTarget = null;
-    this.blockId = 10;
-    this.hitTarget = null;
-    this.maxDepth = -1;
-    init(context);
-  }
-
-  private void init(Context context) {
-    this.mContext = context;
-    addFeedbackShape();
-  }
-
-  public void addRoot(String spec, String eventName) {
-    this.root = new Block(getContext(), 0, spec, "h", eventName, new Object[] {-3636432});
-    this.root.pane = this;
-    addView(this.root);
-    float dip = LayoutUtil.getDip(getContext(), 1.0f);
-    this.root.setX(8.0f * dip);
-    this.root.setY(8.0f * dip);
-  }
-
-  public Block getRoot() {
-    return this.root;
-  }
-
-  public ArrayList<BlockBean> getBlocks() {
-    ArrayList<BlockBean> result = new ArrayList<>();
-    Block b = findViewWithTag(Integer.valueOf(this.root.nextBlock));
-    if (b != null) {
-      ArrayList<Block> arr = b.getAllChildren();
-      Iterator<Block> it = arr.iterator();
-      while (it.hasNext()) {
-        Block block = it.next();
-        result.add(block.getBean());
-      }
+    public BlockPane(Context context) {
+        super(context);
+        this.posArea = new int[INSERT_SUB1];
+        this.possibleTargets = new ArrayList();
+        this.nearestTarget = null;
+        this.blockId = 10;
+        this.hitTarget = null;
+        this.maxDepth = -1;
+        init(context);
     }
-    return result;
-  }
 
-  private void addFeedbackShape() {
-    if (this.feedbackShape == null) {
-      this.feedbackShape = new BlockBase(this.mContext, " ", true);
+    public BlockPane(Context context, AttributeSet attributeSet) {
+        super(context, attributeSet);
+        this.posArea = new int[INSERT_SUB1];
+        this.possibleTargets = new ArrayList();
+        this.nearestTarget = null;
+        this.blockId = 10;
+        this.hitTarget = null;
+        this.maxDepth = -1;
+        init(context);
     }
-    this.feedbackShape.setWidthAndTopHeight(10.0f, 10.0f, false);
-    addView(this.feedbackShape);
-    hideFeedbackShape();
-  }
 
-  public void hideFeedbackShape() {
-    this.feedbackShape.setVisibility(8);
-  }
-
-  public void prepareToDrag(Block b) {
-    findTargetsFor(b);
-    this.nearestTarget = null;
-  }
-
-  public void draggingDone() {
-    hideFeedbackShape();
-    this.possibleTargets = new ArrayList<>();
-    this.nearestTarget = null;
-  }
-
-  public void logAll() {
-    for (int i = 0; i < getChildCount(); i++) {
-      Block childAt = getChildAt(i);
-      if (childAt instanceof Block) {
-        childAt.log();
-      }
-    }
-  }
-
-  public void updateFeedbackFor(Block b, int posX, int posY) {
-    getLocationOnScreen(this.posArea);
-    this.nearestTarget = nearestTargetForBlockIn(b, posX, posY);
-    if (b.canHaveSubstack1() && -1 == b.subStack1 && this.nearestTarget != null) {
-      Block t = (Block) this.nearestTarget[1];
-      switch (((Integer) this.nearestTarget[2]).intValue()) {
-        case INSERT_NORMAL /* 0 */:
-          findViewWithTag(Integer.valueOf(t.nextBlock));
-          break;
-        case INSERT_SUB1 /* 2 */:
-          findViewWithTag(Integer.valueOf(t.subStack1));
-          break;
-        case INSERT_SUB2 /* 3 */:
-          findViewWithTag(Integer.valueOf(t.subStack2));
-          break;
-      }
-    }
-    if (this.nearestTarget != null) {
-      int[] pos = (int[]) this.nearestTarget[0];
-      Block block = (View) this.nearestTarget[1];
-      this.feedbackShape.setX(pos[0] - this.posArea[0]);
-      this.feedbackShape.setY(pos[1] - this.posArea[1]);
-      this.feedbackShape.bringToFront();
-      this.feedbackShape.setVisibility(0);
-      if (b.isReporter) {
-        if (block instanceof Block) {
-          this.feedbackShape.copyFeedbackShapeFrom(block, true, false, 0);
+    private void addFeedbackShape() {
+        if (this.feedbackShape == null) {
+            this.feedbackShape = new BlockBase(this.mContext, " ", true);
         }
-        if (block instanceof BlockArg) {
-          this.feedbackShape.copyFeedbackShapeFrom((BlockArg) block, true, false, 0);
-          return;
-        }
-        return;
-      }
-      int insertionType = ((Integer) this.nearestTarget[2]).intValue();
-      int wrapH = insertionType == 4 ? block.getHeightSum() : 0;
-      boolean isInsertion = (insertionType == 1 || insertionType == 4) ? false : true;
-      this.feedbackShape.copyFeedbackShapeFrom(b, false, isInsertion, wrapH);
-      return;
+        this.feedbackShape.setWidthAndTopHeight(10.0f, 10.0f, false);
+        addView(this.feedbackShape);
+        hideFeedbackShape();
     }
-    hideFeedbackShape();
-  }
 
-  public Block blockDropped(Block b, int posX, int posY, boolean alreadyAdd) {
-    Block v = b;
-    if (!alreadyAdd) {
-      v = addBlock(b, posX, posY);
-    } else {
-      v.setX((posX - this.posArea[0]) - getPaddingLeft());
-      v.setY((posY - this.posArea[1]) - getPaddingTop());
+    private void addPossibleTarget(int[] iArr, View view, int i) {
+        Object[] obj = new Object[INSERT_SUB2];
+        obj[INSERT_NORMAL] = iArr;
+        obj[INSERT_ABOVE] = view;
+        obj[INSERT_SUB1] = Integer.valueOf(i);
+        this.possibleTargets.add(obj);
     }
-    if (this.nearestTarget == null) {
-      v.topBlock().fixLayout();
-      calculateWidthHeight();
-    } else {
-      if (b.isReporter) {
-        ((BlockBase) this.nearestTarget[1])
-            .parentBlock.replaceArgWithBlock((BlockBase) this.nearestTarget[1], v);
+
+    private boolean dropCompatible(Block block, View view) {
+        if (block.isReporter) {
+            String str = block.mType;
+            if ((view instanceof BlockBase) && !((BlockBase) view).mType.equals(str)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void findCommandTargetsIn(Block block, Block block2, boolean z) {
+        while (block2.getVisibility() != 8) {
+            if (!block2.isTerminal && (!z || -1 == block2.nextBlock)) {
+                int[] iArr = new int[INSERT_SUB1];
+                block2.getLocationOnScreen(iArr);
+                iArr[INSERT_ABOVE] = iArr[INSERT_ABOVE] + block2.nextBlockY();
+                addPossibleTarget(iArr, block2, INSERT_NORMAL);
+            }
+            if (block2.canHaveSubstack1() && (!z || block2.subStack1 == -1)) {
+                int[] iArr = new int[INSERT_SUB1];
+                block2.getLocationOnScreen(iArr);
+                iArr[INSERT_NORMAL] = iArr[INSERT_NORMAL] + block2.SubstackInset;
+                iArr[INSERT_ABOVE] = iArr[INSERT_ABOVE] + block2.substack1y();
+                addPossibleTarget(iArr, block2, INSERT_SUB1);
+            }
+            if (block2.canHaveSubstack2() && (!z || block2.subStack2 == -1)) {
+                int[] iArr = new int[INSERT_SUB1];
+                block2.getLocationOnScreen(iArr);
+                iArr[INSERT_NORMAL] = iArr[INSERT_NORMAL] + block2.SubstackInset;
+                iArr[INSERT_ABOVE] = iArr[INSERT_ABOVE] + block2.substack2y();
+                addPossibleTarget(iArr, block2, INSERT_SUB2);
+            }
+            if (block2.subStack1 != -1) {
+                findCommandTargetsIn(block, (Block) findViewWithTag(Integer.valueOf(block2.subStack1)), z);
+            }
+            if (block2.subStack2 != -1) {
+                findCommandTargetsIn(block, (Block) findViewWithTag(Integer.valueOf(block2.subStack2)), z);
+            }
+            if (block2.nextBlock != -1) {
+                block2 = (Block) findViewWithTag(Integer.valueOf(block2.nextBlock));
+            } else {
+                return;
+            }
+        }
+    }
+
+    private void findReporterTargetsIn(Block block, Block block2) {
+        while (block != null) {
+            for (int i = INSERT_NORMAL; i < block.args.size(); i += INSERT_ABOVE) {
+                View view = (View) block.args.get(i);
+                if (((view instanceof Block) || (view instanceof BlockArg)) && view != block2) {
+                    int[] iArr = new int[INSERT_SUB1];
+                    view.getLocationOnScreen(iArr);
+                    addPossibleTarget(iArr, view, INSERT_NORMAL);
+                    if (view instanceof Block) {
+                        findReporterTargetsIn((Block) view, block2);
+                    }
+                }
+            }
+            if (block.subStack1 != -1) {
+                findReporterTargetsIn((Block) findViewWithTag(Integer.valueOf(block.subStack1)), block2);
+            }
+            if (block.subStack2 != -1) {
+                findReporterTargetsIn((Block) findViewWithTag(Integer.valueOf(block.subStack2)), block2);
+            }
+            if (block.nextBlock != -1) {
+                block = (Block) findViewWithTag(Integer.valueOf(block.nextBlock));
+            } else {
+                return;
+            }
+        }
+    }
+
+    private void init(Context context) {
+        this.mContext = context;
+        addFeedbackShape();
+    }
+
+    public Block addBlock(Block block, int i, int i2) {
+        Block block2;
+        getLocationOnScreen(this.posArea);
+        if (block.getBlockType() == INSERT_ABOVE) {
+            Context context = getContext();
+            int i3 = this.blockId;
+            this.blockId = i3 + INSERT_ABOVE;
+            String str = block.mSpec;
+            String str2 = block.mType;
+            String str3 = block.mOpCode;
+            Object[] objArr = new Object[INSERT_SUB1];
+            objArr[INSERT_NORMAL] = Integer.valueOf(block.mColor);
+            objArr[INSERT_ABOVE] = block.defaultArgValues;
+            block2 = new Block(context, i3, str, str2, str3, objArr);
+        } else {
+            block2 = block;
+        }
+        block2.pane = this;
+        addView(block2);
+        block2.setX((float) ((i - this.posArea[INSERT_NORMAL]) - getPaddingLeft()));
+        block2.setY((float) ((i2 - this.posArea[INSERT_ABOVE]) - getPaddingTop()));
+        return block2;
+    }
+
+    public void addRoot(String str, String str2) {
+        Context context = getContext();
+        Object[] objArr = new Object[INSERT_ABOVE];
+        objArr[INSERT_NORMAL] = Integer.valueOf(-3636432);
+        this.root = new Block(context, INSERT_NORMAL, str, "h", str2, objArr);
+        this.root.pane = this;
+        addView(this.root);
+        float dip = LayoutUtil.getDip(getContext(), 1.0f);
+        this.root.setX(8.0f * dip);
+        this.root.setY(dip * 8.0f);
+    }
+    
+    
+    
+   public Block blockDropped(Block var1, int var2, int var3, boolean var4) {
+      Block var5 = var1;
+      if(!var4) {
+         var5 = this.addBlock(var1, var2, var3);
       } else {
-        Block targetCmd = (Block) this.nearestTarget[1];
-        switch (((Integer) this.nearestTarget[2]).intValue()) {
-          case INSERT_NORMAL /* 0 */:
-            targetCmd.insertBlock(v);
-            break;
-          case INSERT_ABOVE /* 1 */:
-            targetCmd.insertBlockAbove(v);
-            break;
-          case INSERT_SUB1 /* 2 */:
-            targetCmd.insertBlockSub1(v);
-            break;
-          case INSERT_SUB2 /* 3 */:
-            targetCmd.insertBlockSub2(v);
-            break;
-          case INSERT_WRAP /* 4 */:
-            targetCmd.insertBlockAround(v);
-            break;
-        }
+         var1.setX((float)(var2 - this.posArea[0] - this.getPaddingLeft()));
+         var1.setY((float)(var3 - this.posArea[1] - this.getPaddingTop()));
       }
-      v.topBlock().fixLayout();
-      calculateWidthHeight();
-    }
-    return v;
-  }
 
-  public void calculateWidthHeight() {
-    int chCount = getChildCount();
-    int maxX = getLayoutParams().width;
-    int maxY = getLayoutParams().width;
-    for (int i = 0; i < chCount; i++) {
-      Block childAt = getChildAt(i);
-      if (childAt instanceof Block) {
-        maxX = Math.max(((int) (childAt.getWidthSum() + childAt.getX())) + 150, maxX);
-        maxY = Math.max(((int) (childAt.getY() + childAt.getHeightSum())) + 150, maxY);
-      }
-    }
-    getLayoutParams().width = maxX;
-    getLayoutParams().height = maxY;
-  }
-
-  public Object[] nearestTargetForBlockIn(Block b, int posX, int posY) {
-    int threshold = b.isReporter ? 40 : 60;
-    int minDist = 100000;
-    Object[] nearest = null;
-    Point pTopLeft = new Point(posX, posY);
-    for (int i = 0; i < this.possibleTargets.size(); i++) {
-      Object[] item = this.possibleTargets.get(i);
-      int[] pos = (int[]) item[0];
-      Point diff = new Point(pTopLeft.x - pos[0], pTopLeft.y - pos[1]);
-      int dist = Math.abs(diff.x / 2) + Math.abs(diff.y);
-      if (dist < minDist && dist < threshold && dropCompatible(b, (View) item[1])) {
-        minDist = dist;
-        nearest = item;
-      }
-    }
-    return nearest;
-  }
-
-  private boolean dropCompatible(Block droppedBlock, View target) {
-    if (droppedBlock.isReporter) {
-      String dropType = droppedBlock.mType;
-      if (target instanceof BlockBase) {
-        String targetType = ((BlockBase) target).mType;
-        return targetType.equals(dropType);
-      }
-      return true;
-    }
-    return true;
-  }
-
-  public void findTargetsFor(Block b) {
-    this.possibleTargets = new ArrayList<>();
-    boolean bEndWithTerminal = b.bottomBlock().isTerminal;
-    boolean bCanWrap = b.canHaveSubstack1() && -1 == b.subStack1;
-    for (int i = 0; i < getChildCount(); i++) {
-      View child = getChildAt(i);
-      if (child instanceof Block) {
-        Block target = (Block) child;
-        if (target.getVisibility() != 8 && target.parentBlock == null) {
-          if (b.isReporter) {
-            findReporterTargetsIn(target, b);
-          } else if (!target.isReporter) {
-            if (!bEndWithTerminal && !target.isHat) {
-              target.getLocationOnScreen(pos);
-              int[] pos = {0, pos[1] - (b.getHeight() - b.NotchDepth)};
-              addPossibleTarget(pos, target, 1);
-            }
-            if (bCanWrap && !target.isHat) {
-              target.getLocationOnScreen(pos);
-              int[] pos2 = {
-                pos2[0] - target.SubstackInset, pos2[1] - (b.substack1y() - b.NotchDepth)
-              };
-              addPossibleTarget(pos2, target, 4);
-            }
-            if (!b.isHat) {
-              findCommandTargetsIn(b, target, bEndWithTerminal && !bCanWrap);
-            }
-          }
-        }
-      }
-    }
-  }
-
-  private void findCommandTargetsIn(Block o, Block target, boolean endsWithTerminal) {
-    Block b = target;
-    while (b.getVisibility() != 8) {
-      if (!b.isTerminal && (!endsWithTerminal || -1 == b.nextBlock)) {
-        b.getLocationOnScreen(pos);
-        int[] pos = {0, pos[1] + b.nextBlockY()};
-        addPossibleTarget(pos, b, 0);
-      }
-      if (b.canHaveSubstack1() && (!endsWithTerminal || b.subStack1 == -1)) {
-        b.getLocationOnScreen(pos);
-        int[] pos2 = {pos2[0] + b.SubstackInset, pos2[1] + b.substack1y()};
-        addPossibleTarget(pos2, b, 2);
-      }
-      if (b.canHaveSubstack2() && (!endsWithTerminal || b.subStack2 == -1)) {
-        b.getLocationOnScreen(pos);
-        int[] pos3 = {pos3[0] + b.SubstackInset, pos3[1] + b.substack2y()};
-        addPossibleTarget(pos3, b, 3);
-      }
-      if (b.subStack1 != -1) {
-        findCommandTargetsIn(
-            o, (Block) findViewWithTag(Integer.valueOf(b.subStack1)), endsWithTerminal);
-      }
-      if (b.subStack2 != -1) {
-        findCommandTargetsIn(
-            o, (Block) findViewWithTag(Integer.valueOf(b.subStack2)), endsWithTerminal);
-      }
-      if (b.nextBlock != -1) {
-        b = (Block) findViewWithTag(Integer.valueOf(b.nextBlock));
+      if(this.nearestTarget == null) {
+         var5.topBlock().fixLayout();
+         this.calculateWidthHeight();
+         return var5;
       } else {
-        return;
-      }
-    }
-  }
+         if(var1.isReporter) {
+            ((BlockBase)this.nearestTarget[1]).parentBlock.replaceArgWithBlock((BlockBase)this.nearestTarget[1], var5);
+         } else {
+            Block var6 = (Block)this.nearestTarget[1];
+            switch(((Integer)this.nearestTarget[2]).intValue()) {
+            case 0:
+               var6.insertBlock(var5);
+               break;
+            case 1:
+               var6.insertBlockAbove(var5);
+               break;
+            case 2:
+               var6.insertBlockSub1(var5);
+               break;
+            case 3:
+               var6.insertBlockSub2(var5);
+               break;
+            case 4:
+               var6.insertBlockAround(var5);
+            }
+         }
 
-  private void findReporterTargetsIn(Block target, Block src) {
-    Block b = target;
-    while (b != null) {
-      for (int i = 0; i < b.args.size(); i++) {
-        View v = (View) b.args.get(i);
-        if (((v instanceof Block) || (v instanceof BlockArg)) && v != src) {
-          int[] pos = new int[2];
-          v.getLocationOnScreen(pos);
-          addPossibleTarget(pos, v, 0);
-          if (v instanceof Block) {
-            findReporterTargetsIn((Block) v, src);
-          }
+         var5.topBlock().fixLayout();
+         this.calculateWidthHeight();
+         return var5;
+      }
+   }
+
+   public void calculateWidthHeight() {
+      int var1 = this.getChildCount();
+      int var2 = this.getLayoutParams().width;
+      int var3 = this.getLayoutParams().width;
+
+      for(int var4 = 0; var4 < var1; ++var4) {
+         View var5 = this.getChildAt(var4);
+         if(var5 instanceof Block) {
+            var2 = Math.max(150 + (int)(var5.getX() + (float)((Block)var5).getWidthSum()), var2);
+            var3 = Math.max(150 + (int)(var5.getY() + (float)((Block)var5).getHeightSum()), var3);
+         }
+      }
+
+      this.getLayoutParams().width = var2;
+      this.getLayoutParams().height = var3;
+   }
+    
+    
+    
+    
+   public void draggingDone() {
+        hideFeedbackShape();
+        this.possibleTargets = new ArrayList();
+        this.nearestTarget = null;
+   }
+
+   public void findTargetsFor(Block block) {
+        this.possibleTargets = new ArrayList();
+        boolean z = block.bottomBlock().isTerminal;
+        int i = (block.canHaveSubstack1() && -1 == block.subStack1) ? INSERT_ABOVE : INSERT_NORMAL;
+        for (int i2 = INSERT_NORMAL; i2 < getChildCount(); i2 += INSERT_ABOVE) {
+            View childAt = getChildAt(i2);
+            if (childAt instanceof Block) {
+                Block block2 = (Block) childAt;
+                if (block2.getVisibility() != 8 && block2.parentBlock == null) {
+                    if (block.isReporter) {
+                        findReporterTargetsIn(block2, block);
+                    } else if (!block2.isReporter) {
+                        int[] iArr;
+                        if (!(z || block2.isHat)) {
+                            iArr = new int[INSERT_SUB1];
+                            block2.getLocationOnScreen(iArr);
+                            iArr[INSERT_ABOVE] = iArr[INSERT_ABOVE] - (block.getHeight() - block.NotchDepth);
+                            addPossibleTarget(iArr, block2, INSERT_ABOVE);
+                        }
+                        if (!(i == 0 || block2.isHat)) {
+                            iArr = new int[INSERT_SUB1];
+                            block2.getLocationOnScreen(iArr);
+                            iArr[INSERT_NORMAL] = iArr[INSERT_NORMAL] - block2.SubstackInset;
+                            iArr[INSERT_ABOVE] = iArr[INSERT_ABOVE] - (block.substack1y() - block.NotchDepth);
+                            addPossibleTarget(iArr, block2, INSERT_WRAP);
+                        }
+                        if (!block.isHat) {
+                            boolean z2 = z && i == 0;
+                            findCommandTargetsIn(block, block2, z2);
+                        }
+                    }
+                }
+            }
         }
-      }
-      if (b.subStack1 != -1) {
-        findReporterTargetsIn((Block) findViewWithTag(Integer.valueOf(b.subStack1)), src);
-      }
-      if (b.subStack2 != -1) {
-        findReporterTargetsIn((Block) findViewWithTag(Integer.valueOf(b.subStack2)), src);
-      }
-      if (b.nextBlock != -1) {
-        b = (Block) findViewWithTag(Integer.valueOf(b.nextBlock));
-      } else {
-        return;
-      }
-    }
-  }
+   }
 
-  private void addPossibleTarget(int[] pos, View target, int op) {
-    Object[] obj = {pos, target, Integer.valueOf(op)};
-    this.possibleTargets.add(obj);
-  }
-
-  public boolean hitTest(float posX, float posY) {
-    getLocationOnScreen(this.posArea);
-    return posX > ((float) this.posArea[0])
-        && posX < ((float) (this.posArea[0] + getWidth()))
-        && posY > ((float) this.posArea[1])
-        && posY < ((float) (this.posArea[1] + getHeight()));
-  }
-
-  public Block addBlock(Block b, int posX, int posY) {
-    getLocationOnScreen(this.posArea);
-    Block v = b;
-    if (b.getBlockType() == 1) {
-      Context context = getContext();
-      int i = this.blockId;
-      this.blockId = i + 1;
-      v =
-          new Block(
-              context,
-              i,
-              b.mSpec,
-              b.mType,
-              b.mOpCode,
-              new Object[] {Integer.valueOf(b.mColor), b.defaultArgValues});
-    }
-    v.pane = this;
-    addView(v);
-    v.setX((posX - this.posArea[0]) - getPaddingLeft());
-    v.setY((posY - this.posArea[1]) - getPaddingTop());
-    return v;
-  }
-
-  public void removeRelation(Block b) {
-    Block parent;
-    if (b.parentBlock != null && (parent = b.parentBlock) != null) {
-      parent.removeBlock(b);
-      b.parentBlock = null;
-    }
-  }
-
-  public void removeBlock(Block b) {
-    removeRelation(b);
-    ArrayList<Block> arr = b.getAllChildren();
-    Iterator<Block> it = arr.iterator();
-    while (it.hasNext()) {
-      Block block = it.next();
-      removeView(block);
-    }
-  }
-
-  public void setVisibleBlock(Block b, int visible) {
-    Block target = b;
-    while (target != null) {
-      target.setVisibility(visible);
-      Iterator it = target.args.iterator();
-      while (it.hasNext()) {
-        View v = (View) it.next();
-        if (v instanceof Block) {
-          setVisibleBlock((Block) v, visible);
+   public ArrayList<BlockBean> getBlocks() {
+        ArrayList<BlockBean> arrayList = new ArrayList();
+        Block block = (Block) findViewWithTag(Integer.valueOf(this.root.nextBlock));
+        if (block != null) {
+            Iterator it = block.getAllChildren().iterator();
+            while (it.hasNext()) {
+                arrayList.add(((Block) it.next()).getBean());
+            }
         }
-      }
-      if (target.canHaveSubstack1() && target.subStack1 != -1) {
-        setVisibleBlock((Block) findViewWithTag(Integer.valueOf(target.subStack1)), visible);
-      }
-      if (target.canHaveSubstack2() && target.subStack2 != -1) {
-        setVisibleBlock((Block) findViewWithTag(Integer.valueOf(target.subStack2)), visible);
-      }
-      if (target.nextBlock != -1) {
-        target = (Block) findViewWithTag(Integer.valueOf(target.nextBlock));
-      } else {
-        return;
-      }
-    }
-  }
+        return arrayList;
+   }
 
-  /* JADX WARN: Code restructure failed: missing block: B:40:0x0024, code lost:
-     continue;
-  */
-  /*
-      Code decompiled incorrectly, please refer to instructions dump.
-  */
-  public boolean isExistVariableBlock(String name) {
-    int childCount = getChildCount();
-    for (int i = 0; i < childCount; i++) {
-      Block childAt = getChildAt(i);
-      if (childAt instanceof Block) {
-        BlockBean bean = childAt.getBean();
-        String str = bean.opCode;
-        char c = 65535;
-        switch (str.hashCode()) {
-          case -1920517885:
-            if (str.equals("setVarBoolean")) {
-              c = 1;
-              break;
+    public Block getHitBlock(float f, float f2) {
+        this.hitTarget = null;
+        this.maxDepth = -1;
+        for (int i = INSERT_NORMAL; i < getChildCount(); i += INSERT_ABOVE) {
+            View childAt = getChildAt(i);
+            if ((childAt instanceof Block) && childAt != this.root) {
+                Block block = (Block) childAt;
+                int[] iArr = new int[INSERT_SUB1];
+                block.getLocationOnScreen(iArr);
+                if (f > ((float) iArr[INSERT_NORMAL]) && f < ((float) (iArr[INSERT_NORMAL] + block.getWidth())) && f2 > ((float) iArr[INSERT_ABOVE]) && f2 < ((float) (iArr[INSERT_ABOVE] + block.getHeight()))) {
+                    int depth = block.getDepth();
+                    if (depth > this.maxDepth) {
+                        this.maxDepth = depth;
+                        this.hitTarget = block;
+                    }
+                }
             }
-            break;
-          case -1377080719:
-            if (str.equals("decreaseInt")) {
-              c = 5;
-              break;
-            }
-            break;
-          case -1249347599:
-            if (str.equals("getVar")) {
-              c = 0;
-              break;
-            }
-            break;
-          case 657721930:
-            if (str.equals("setVarInt")) {
-              c = 2;
-              break;
-            }
-            break;
-          case 754442829:
-            if (str.equals("increaseInt")) {
-              c = 4;
-              break;
-            }
-            break;
-          case 845089750:
-            if (str.equals("setVarString")) {
-              c = 3;
-              break;
-            }
-            break;
         }
-        switch (c) {
-          case INSERT_NORMAL /* 0 */:
-            if (bean.spec.equals(name)) {
-              return true;
-            }
-            continue;
-          case INSERT_ABOVE /* 1 */:
-          case INSERT_SUB1 /* 2 */:
-          case INSERT_SUB2 /* 3 */:
-          case INSERT_WRAP /* 4 */:
-          case INSERT_PARAM /* 5 */:
-            if (((String) bean.parameters.get(0)).equals(name)) {
-              return true;
-            }
-            continue;
-        }
-      }
+        return this.hitTarget;
     }
-    return false;
-  }
 
-  /* JADX WARN: Code restructure failed: missing block: B:65:0x0025, code lost:
-     continue;
-  */
-  /*
-      Code decompiled incorrectly, please refer to instructions dump.
-  */
-  public boolean isExistListBlock(String name) {
-    int childCount = getChildCount();
-    for (int i = 0; i < childCount; i++) {
-      Block childAt = getChildAt(i);
-      if (childAt instanceof Block) {
-        BlockBean bean = childAt.getBean();
-        String str = bean.opCode;
-        char c = 65535;
-        switch (str.hashCode()) {
-          case -1384861688:
-            if (str.equals("getAtListInt")) {
-              c = 6;
-              break;
-            }
-            break;
-          case -1384851894:
-            if (str.equals("getAtListStr")) {
-              c = 7;
-              break;
-            }
-            break;
-          case -1271141237:
-            if (str.equals("clearList")) {
-              c = 3;
-              break;
-            }
-            break;
-          case -329562760:
-            if (str.equals("insertListInt")) {
-              c = 11;
-              break;
-            }
-            break;
-          case -329552966:
-            if (str.equals("insertListStr")) {
-              c = '\f';
-              break;
-            }
-            break;
-          case -96313603:
-            if (str.equals("containListInt")) {
-              c = 1;
-              break;
-            }
-            break;
-          case -96303809:
-            if (str.equals("containListStr")) {
-              c = 2;
-              break;
-            }
-            break;
-          case 762282303:
-            if (str.equals("indexListInt")) {
-              c = '\b';
-              break;
-            }
-            break;
-          case 762292097:
-            if (str.equals("indexListStr")) {
-              c = '\t';
-              break;
-            }
-            break;
-          case 1160674468:
-            if (str.equals("lengthList")) {
-              c = 0;
-              break;
-            }
-            break;
-          case 1764351209:
-            if (str.equals("deleteList")) {
-              c = '\n';
-              break;
-            }
-            break;
-          case 2090179216:
-            if (str.equals("addListInt")) {
-              c = 4;
-              break;
-            }
-            break;
-          case 2090189010:
-            if (str.equals("addListStr")) {
-              c = 5;
-              break;
-            }
-            break;
-        }
-        switch (c) {
-          case INSERT_NORMAL /* 0 */:
-          case INSERT_ABOVE /* 1 */:
-          case INSERT_SUB1 /* 2 */:
-          case INSERT_SUB2 /* 3 */:
-            if (((String) bean.parameters.get(0)).equals(name)) {
-              return true;
-            }
-            continue;
-          case INSERT_WRAP /* 4 */:
-          case INSERT_PARAM /* 5 */:
-          case 6:
-          case 7:
-          case '\b':
-          case '\t':
-          case '\n':
-            if (((String) bean.parameters.get(1)).equals(name)) {
-              return true;
-            }
-            continue;
-          case 11:
-          case '\f':
-            if (((String) bean.parameters.get(2)).equals(name)) {
-              return true;
-            }
-            continue;
-        }
-      }
+    public Block getRoot() {
+        return this.root;
     }
-    return false;
-  }
 
-  public Block getHitBlock(float posX, float posY) {
-    int targetDepth;
-    this.hitTarget = null;
-    this.maxDepth = -1;
-    for (int i = 0; i < getChildCount(); i++) {
-      Block childAt = getChildAt(i);
-      if ((childAt instanceof Block) && childAt != this.root) {
-        Block target = childAt;
-        int[] posBlock = new int[2];
-        target.getLocationOnScreen(posBlock);
-        if (posX > posBlock[0]
-            && posX < posBlock[0] + target.getWidth()
-            && posY > posBlock[1]
-            && posY < posBlock[1] + target.getHeight()
-            && (targetDepth = target.getDepth()) > this.maxDepth) {
-          this.maxDepth = targetDepth;
-          this.hitTarget = target;
-        }
-      }
+    public void hideFeedbackShape() {
+        this.feedbackShape.setVisibility(8);
     }
-    return this.hitTarget;
-  }
+
+    public boolean hitTest(float f, float f2) {
+        getLocationOnScreen(this.posArea);
+        return f > ((float) this.posArea[INSERT_NORMAL]) && f < ((float) (this.posArea[INSERT_NORMAL] + getWidth())) && f2 > ((float) this.posArea[INSERT_ABOVE]) && f2 < ((float) (this.posArea[INSERT_ABOVE] + getHeight()));
+    }
+
+    public boolean isExistListBlock(String str) {
+        int childCount = getChildCount();
+        for (int i = INSERT_NORMAL; i < childCount; i += INSERT_ABOVE) {
+            View childAt = getChildAt(i);
+            if (childAt instanceof Block) {
+                BlockBean bean = ((Block) childAt).getBean();
+                String str2 = bean.opCode;
+                int i2 = -1;
+                switch (str2.hashCode()) {
+                    case -1384861688:
+                        if (str2.equals("getAtListInt")) {
+                            i2 = 6;
+                            break;
+                        }
+                        break;
+                    case -1384851894:
+                        if (str2.equals("getAtListStr")) {
+                            i2 = 7;
+                            break;
+                        }
+                        break;
+                    case -1271141237:
+                        if (str2.equals("clearList")) {
+                            i2 = INSERT_SUB2;
+                            break;
+                        }
+                        break;
+                    case -329562760:
+                        if (str2.equals("insertListInt")) {
+                            i2 = 11;
+                            break;
+                        }
+                        break;
+                    case -329552966:
+                        if (str2.equals("insertListStr")) {
+                            i2 = 12;
+                            break;
+                        }
+                        break;
+                    case -96313603:
+                        if (str2.equals("containListInt")) {
+                            i2 = INSERT_ABOVE;
+                            break;
+                        }
+                        break;
+                    case -96303809:
+                        if (str2.equals("containListStr")) {
+                            i2 = INSERT_SUB1;
+                            break;
+                        }
+                        break;
+                    case 762282303:
+                        if (str2.equals("indexListInt")) {
+                            i2 = 8;
+                            break;
+                        }
+                        break;
+                    case 762292097:
+                        if (str2.equals("indexListStr")) {
+                            i2 = 9;
+                            break;
+                        }
+                        break;
+                    case 1160674468:
+                        if (str2.equals("lengthList")) {
+                            i2 = INSERT_NORMAL;
+                            break;
+                        }
+                        break;
+                    case 1764351209:
+                        if (str2.equals("deleteList")) {
+                            i2 = 10;
+                            break;
+                        }
+                        break;
+                    case 2090179216:
+                        if (str2.equals("addListInt")) {
+                            i2 = INSERT_WRAP;
+                            break;
+                        }
+                        break;
+                    case 2090189010:
+                        if (str2.equals("addListStr")) {
+                            i2 = INSERT_PARAM;
+                            break;
+                        }
+                        break;
+                }
+                switch (i2) {
+                    case INSERT_NORMAL /*0*/:
+                    case INSERT_ABOVE /*1*/:
+                    case INSERT_SUB1 /*2*/:
+                    case INSERT_SUB2 /*3*/:
+                        if (!((String) bean.parameters.get(INSERT_NORMAL)).equals(str)) {
+                            break;
+                        }
+                        return true;
+                    case INSERT_WRAP /*4*/:
+                    case INSERT_PARAM /*5*/:
+                    case 6:
+                    case 7:
+                    case 8:
+                    case 9:
+                    case 10:
+                        if (!((String) bean.parameters.get(INSERT_ABOVE)).equals(str)) {
+                            break;
+                        }
+                        return true;
+                    case 11:
+                    case 12:
+                        if (!((String) bean.parameters.get(INSERT_SUB1)).equals(str)) {
+                            break;
+                        }
+                        return true;
+                    default:
+                        continue;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean isExistVariableBlock(String str) {
+        int childCount = getChildCount();
+        for (int i = INSERT_NORMAL; i < childCount; i += INSERT_ABOVE) {
+            View childAt = getChildAt(i);
+            if (childAt instanceof Block) {
+                BlockBean bean = ((Block) childAt).getBean();
+                String str2 = bean.opCode;
+                int i2 = -1;
+                switch (str2.hashCode()) {
+                    case -1920517885:
+                        if (str2.equals("setVarBoolean")) {
+                            i2 = INSERT_ABOVE;
+                            break;
+                        }
+                        break;
+                    case -1377080719:
+                        if (str2.equals("decreaseInt")) {
+                            i2 = INSERT_PARAM;
+                            break;
+                        }
+                        break;
+                    case -1249347599:
+                        if (str2.equals("getVar")) {
+                            i2 = INSERT_NORMAL;
+                            break;
+                        }
+                        break;
+                    case 657721930:
+                        if (str2.equals("setVarInt")) {
+                            i2 = INSERT_SUB1;
+                            break;
+                        }
+                        break;
+                    case 754442829:
+                        if (str2.equals("increaseInt")) {
+                            i2 = INSERT_WRAP;
+                            break;
+                        }
+                        break;
+                    case 845089750:
+                        if (str2.equals("setVarString")) {
+                            i2 = INSERT_SUB2;
+                            break;
+                        }
+                        break;
+                }
+                switch (i2) {
+                    case INSERT_NORMAL /*0*/:
+                        if (!bean.spec.equals(str)) {
+                            break;
+                        }
+                        return true;
+                    case INSERT_ABOVE /*1*/:
+                    case INSERT_SUB1 /*2*/:
+                    case INSERT_SUB2 /*3*/:
+                    case INSERT_WRAP /*4*/:
+                    case INSERT_PARAM /*5*/:
+                        if (!((String) bean.parameters.get(INSERT_NORMAL)).equals(str)) {
+                            break;
+                        }
+                        return true;
+                    default:
+                        continue;
+                }
+            }
+        }
+        return false;
+    }
+
+    public void logAll() {
+        for (int i = INSERT_NORMAL; i < getChildCount(); i += INSERT_ABOVE) {
+            View childAt = getChildAt(i);
+            if (childAt instanceof Block) {
+                ((Block) childAt).log();
+            }
+        }
+    }
+
+    public Object[] nearestTargetForBlockIn(Block block, int i, int i2) {
+        int i3 = block.isReporter ? 40 : 60;
+        int i4 = 100000;
+        Object[] objArr = null;
+        Point point = new Point(i, i2);
+        int i5 = INSERT_NORMAL;
+        while (i5 < this.possibleTargets.size()) {
+            int i6;
+            Object[] objArr2 = (Object[]) this.possibleTargets.get(i5);
+            int[] iArr = (int[]) objArr2[INSERT_NORMAL];
+            Point point2 = new Point(point.x - iArr[INSERT_NORMAL], point.y - iArr[INSERT_ABOVE]);
+            int abs = Math.abs(point2.y) + Math.abs(point2.x / INSERT_SUB1);
+            if (abs >= i4 || abs >= i3 || !dropCompatible(block, (View) objArr2[INSERT_ABOVE])) {
+                objArr2 = objArr;
+                i6 = i4;
+            } else {
+                i6 = abs;
+            }
+            i5 += INSERT_ABOVE;
+            i4 = i6;
+            objArr = objArr2;
+        }
+        return objArr;
+    }
+
+    public void prepareToDrag(Block block) {
+        findTargetsFor(block);
+        this.nearestTarget = null;
+    }
+
+    public void removeBlock(Block block) {
+        removeRelation(block);
+        Iterator it = block.getAllChildren().iterator();
+        while (it.hasNext()) {
+            removeView((Block) it.next());
+        }
+    }
+
+    public void removeRelation(Block block) {
+        if (block.parentBlock != null) {
+            Block block2 = block.parentBlock;
+            if (block2 != null) {
+                block2.removeBlock(block);
+                block.parentBlock = null;
+            }
+        }
+    }
+
+    public void setVisibleBlock(Block block, int i) {
+        while (block != null) {
+            block.setVisibility(i);
+            Iterator it = block.args.iterator();
+            while (it.hasNext()) {
+                View view = (View) it.next();
+                if (view instanceof Block) {
+                    setVisibleBlock((Block) view, i);
+                }
+            }
+            if (block.canHaveSubstack1() && block.subStack1 != -1) {
+                setVisibleBlock((Block) findViewWithTag(Integer.valueOf(block.subStack1)), i);
+            }
+            if (block.canHaveSubstack2() && block.subStack2 != -1) {
+                setVisibleBlock((Block) findViewWithTag(Integer.valueOf(block.subStack2)), i);
+            }
+            if (block.nextBlock != -1) {
+                block = (Block) findViewWithTag(Integer.valueOf(block.nextBlock));
+            } else {
+                return;
+            }
+        }
+    }
+
+    public void updateFeedbackFor(Block block, int i, int i2) {
+        getLocationOnScreen(this.posArea);
+        this.nearestTarget = nearestTargetForBlockIn(block, i, i2);
+        if (block.canHaveSubstack1() && -1 == block.subStack1 && this.nearestTarget != null) {
+            Block block2 = (Block) this.nearestTarget[INSERT_ABOVE];
+            switch (((Integer) this.nearestTarget[INSERT_SUB1]).intValue()) {
+                case INSERT_NORMAL /*0*/:
+                    block2 = (Block) findViewWithTag(Integer.valueOf(block2.nextBlock));
+                    break;
+                case INSERT_SUB1 /*2*/:
+                    block2 = (Block) findViewWithTag(Integer.valueOf(block2.subStack1));
+                    break;
+                case INSERT_SUB2 /*3*/:
+                    block2 = (Block) findViewWithTag(Integer.valueOf(block2.subStack2));
+                    break;
+            }
+        }
+        if (this.nearestTarget != null) {
+            int[] iArr = (int[]) this.nearestTarget[INSERT_NORMAL];
+            View view = (View) this.nearestTarget[INSERT_ABOVE];
+            this.feedbackShape.setX((float) (iArr[INSERT_NORMAL] - this.posArea[INSERT_NORMAL]));
+            this.feedbackShape.setY((float) (iArr[INSERT_ABOVE] - this.posArea[INSERT_ABOVE]));
+            this.feedbackShape.bringToFront();
+            this.feedbackShape.setVisibility(INSERT_NORMAL);
+            if (block.isReporter) {
+                if (view instanceof Block) {
+                    this.feedbackShape.copyFeedbackShapeFrom((Block) view, true, false, INSERT_NORMAL);
+                }
+                if (view instanceof BlockArg) {
+                    this.feedbackShape.copyFeedbackShapeFrom((BlockArg) view, true, false, INSERT_NORMAL);
+                    return;
+                }
+                return;
+            }
+            int intValue = ((Integer) this.nearestTarget[INSERT_SUB1]).intValue();
+            int heightSum = intValue == INSERT_WRAP ? ((Block) view).getHeightSum() : INSERT_NORMAL;
+            boolean z = (intValue == INSERT_ABOVE || intValue == INSERT_WRAP) ? false : true;
+            this.feedbackShape.copyFeedbackShapeFrom(block, false, z, heightSum);
+            return;
+        }
+        hideFeedbackShape();
+    }
 }
